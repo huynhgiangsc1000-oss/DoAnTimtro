@@ -1,85 +1,403 @@
 ﻿@model DoAnCk.Models.Entities.Room
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết phòng";
     Layout = "RoomController";
+
+    var mainImage = Model.Images?.FirstOrDefault(x => x.IsMain)?.ImageUrl
+                 ?? Model.Images?.FirstOrDefault()?.ImageUrl
+                 ?? "https://via.placeholder.com/1000x600?text=No+Image";
 }
 
-<h1>Details</h1>
+<div class="room-details-page">
+    @Html.AntiForgeryToken()
 
-<div>
-    <h4>Room</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Area)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Area)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Latitude)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Latitude)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Longitude)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Longitude)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsApproved)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsApproved)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.Name)
-        </dd>
-    </dl>
+    <div class="room-details-card">
+        <div class="room-image-section">
+            <img src="@mainImage" alt="@Model.Title" class="room-main-image" />
+
+            <button type="button"
+                    id="favoriteBtn"
+                    class="favorite-btn"
+                    data-room-id="@Model.Id"
+                    title="Yêu thích">
+                <span id="favoriteHeart" class="heart-icon">♡</span>
+                <span id="favoriteText">Yêu thích</span>
+            </button>
+        </div>
+
+        <div class="room-content-section">
+            <div class="room-category-badge">
+                @Model.Category?.Name
+            </div>
+
+            <h1 class="room-title">@Model.Title</h1>
+
+            <div class="room-price">
+                @String.Format("{0:N0}", Model.Price) đ/tháng
+            </div>
+
+            <div class="room-meta-grid">
+                <div class="meta-item">
+                    <span class="meta-label">Diện tích</span>
+                    <span class="meta-value">@Model.Area m²</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Địa chỉ</span>
+                    <span class="meta-value">@Model.Address</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Người đăng</span>
+                    <span class="meta-value">@(Model.User?.FullName ?? Model.User?.UserName ?? Model.User?.Id.ToString())</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Ngày đăng</span>
+                    <span class="meta-value">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Tọa độ</span>
+                    <span class="meta-value">@Model.Latitude, @Model.Longitude</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Trạng thái</span>
+                    <span class="meta-value">
+                        @(Model.IsApproved ? "Đã duyệt" : "Chưa duyệt")
+                    </span>
+                </div>
+            </div>
+
+            <div class="room-description-box">
+                <h3>Mô tả phòng</h3>
+                <p>
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        @Model.Description
+                    }
+                    else
+                    {
+                        <span>Chưa có mô tả cho phòng này.</span>
+                    }
+                </p>
+            </div>
+
+            <div class="room-action-group">
+                <a asp-action="Index" class="btn-back">← Quay lại danh sách</a>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">Chỉnh sửa</a>
+                <a asp-area="Customer" asp-controller="RoomRequests" asp-action="CreateForRoom" asp-route-roomId="@Model.Id" class="btn-request">
+                    Gửi yêu cầu ở ghép
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    .room-details-page {
+        max-width: 1200px;
+        margin: 32px auto;
+        padding: 0 16px 40px;
+    }
+
+    .room-details-card {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 24px;
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef2f7;
+        overflow: hidden;
+    }
+
+    .room-image-section {
+        position: relative;
+        background: #f3f4f6;
+        min-height: 500px;
+    }
+
+    .room-main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .favorite-btn {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        border: none;
+        background: rgba(255,255,255,0.96);
+        color: #e25577;
+        border-radius: 999px;
+        padding: 11px 18px;
+        font-size: 15px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        z-index: 2;
+    }
+
+        .favorite-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .favorite-btn.active {
+            background: #fff0f4;
+            color: #d6336c;
+        }
+
+    .heart-icon {
+        font-size: 22px;
+        line-height: 1;
+        transition: transform 0.2s ease;
+    }
+
+    .favorite-btn.active .heart-icon {
+        transform: scale(1.12);
+    }
+
+    .room-content-section {
+        padding: 28px 28px 30px;
+    }
+
+    .room-category-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .room-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+
+    .room-price {
+        font-size: 30px;
+        font-weight: 800;
+        color: #dc2626;
+        margin-bottom: 22px;
+    }
+
+    .room-meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .meta-item {
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .meta-label {
+        display: block;
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .meta-value {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.5;
+    }
+
+    .room-description-box {
+        background: #fff;
+        border: 1px solid #edf2f7;
+        border-radius: 18px;
+        padding: 18px;
+        margin-bottom: 24px;
+    }
+
+        .room-description-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .room-description-box p {
+            margin: 0;
+            color: #4b5563;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+    .room-action-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back,
+    .btn-edit,
+    .btn-request {
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.25s ease;
+    }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+        .btn-back:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+    .btn-edit {
+        background: #f59e0b;
+        color: #fff;
+    }
+
+        .btn-edit:hover {
+            background: #d97706;
+            color: #fff;
+        }
+
+    .btn-request {
+        background: #2563eb;
+        color: #fff;
+    }
+
+        .btn-request:hover {
+            background: #1d4ed8;
+            color: #fff;
+        }
+
+    @@media (max-width: 992px) {
+        .room-details-card {
+            grid-template-columns: 1fr;
+        }
+
+        .room-image-section {
+            min-height: 320px;
+        }
+
+        .room-title {
+            font-size: 28px;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .room-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .room-content-section {
+            padding: 20px;
+        }
+
+        .room-title {
+            font-size: 24px;
+        }
+
+        .room-price {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const btn = document.getElementById("favoriteBtn");
+        if (!btn) return;
+
+        const heart = document.getElementById("favoriteHeart");
+        const text = document.getElementById("favoriteText");
+        const roomId = btn.getAttribute("data-room-id");
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        function setFavoriteState(isFavorite) {
+            if (isFavorite) {
+                btn.classList.add("active");
+                heart.textContent = "❤";
+                text.textContent = "Đã yêu thích";
+            } else {
+                btn.classList.remove("active");
+                heart.textContent = "♡";
+                text.textContent = "Yêu thích";
+            }
+        }
+
+        async function loadFavoriteState() {
+            try {
+                const response = await fetch(`/Customer/Favorites/IsFavorite?roomId=${roomId}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+                if (data.success) {
+                    setFavoriteState(data.isFavorite);
+                }
+            } catch (error) {
+                console.error("Load favorite state error:", error);
+            }
+        }
+
+        btn.addEventListener("click", async function () {
+            btn.disabled = true;
+
+            try {
+                const response = await fetch("/Customer/Favorites/Toggle", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body: new URLSearchParams({
+                        __RequestVerificationToken: token,
+                        roomId: roomId
+                    })
+                });
+
+                if (response.status === 401) {
+                    alert("Bạn cần đăng nhập để dùng chức năng này.");
+                    btn.disabled = false;
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setFavoriteState(data.isFavorite);
+                } else {
+                    alert(data.message || "Có lỗi xảy ra.");
+                }
+            } catch (error) {
+                console.error("Toggle favorite error:", error);
+                alert("Có lỗi xảy ra khi xử lý yêu thích.");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        await loadFavoriteState();
+    });
+</script>
