@@ -1,96 +1,97 @@
 ﻿@model IEnumerable<DoAnCk.Models.Entities.Room>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "RoomManagementController";
+    ViewData["Title"] = "Danh sách phòng trọ";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary fw-bold">Danh sách phòng trọ</h2>
+    <a asp-action="Create" class="btn btn-success rounded-pill shadow-sm">
+        <i class="bi bi-plus-circle"></i> Thêm phòng mới
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
+<table class="table table-hover align-middle border shadow-sm">
+    <thead class="table-light">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Area)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Latitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Longitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsApproved)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
+            <th>Hình ảnh</th>
+            <th>Thông tin phòng</th>
+            <th>Giá & Diện tích</th>
+            <th>Địa chỉ</th>
+            <th>Ngày đăng</th> @* Cột mới thêm theo yêu cầu *@
+            <th>Trạng thái</th>
+            <th>Người đăng</th>
+            <th class="text-center">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Area)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Latitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Longitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsApproved)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (item.Images != null && item.Images.Any())
+                    {
+                        <img src="@item.Images.FirstOrDefault().ImageUrl" style="width:100px;height:75px;object-fit:cover" class="rounded border" />
+                    }
+                    else
+                    {
+                        <img src="/images/no-image.png" style="width:100px;height:75px;object-fit:cover" class="rounded border" />
+                    }
+                </td>
+                <td>
+                    <div class="fw-bold text-dark">@item.Title</div>
+                    <small class="badge bg-secondary-subtle text-secondary border">@item.Category?.Name</small>
+                </td>
+                <td>
+                    <div class="text-danger fw-bold">@item.Price.ToString("N0") đ</div>
+                    <small class="text-muted">@item.Area m²</small>
+                </td>
+                <td>
+                    <small class="text-truncate d-inline-block" style="max-width: 150px;">@item.Address</small>
+                </td>
+                <td>
+                    @* Hiển thị ngày đăng định dạng dd/MM/yyyy *@
+                    <span class="text-muted">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
+                </td>
+                <td>
+                    @if (item.IsApproved)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-check-circle"></i> Đã duyệt
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                            <i class="bi bi-clock"></i> Chờ duyệt
+                        </span>
+                    }
+                </td>
+                <td>
+                    <small class="text-muted">@item.User?.Email</small>
+                </td>
+                <td class="text-center">
+                    <div class="btn-group gap-1">
+                        @if (!item.IsApproved)
+                        {
+                            <form asp-action="Approve" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Xác nhận duyệt bài này?')">
+                                <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Duyệt bài">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        }
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa bài">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

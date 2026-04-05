@@ -1,10 +1,18 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using DoAnCk.Models.Entities
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - DoAnCk</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @* Thêm Bootstrap Icons *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    @* Thêm Font Awesome *@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DoAnCk.styles.css" asp-append-version="true" />
@@ -13,7 +21,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DoAnCk</a>
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">DoAnCk</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -24,32 +32,45 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (SignInManager.IsSignedIn(User))
                         {
                             @* MENU CHO ADMIN *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Quản trị viên
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Quản trị viên
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Quản lý danh mục</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Quản lý tiện ích</a></li>
+                                    <ul class="dropdown-menu shadow border-0" aria-labelledby="adminDropdown">
+                                        @* Lưu ý: Tên Controller phải khớp chính xác với file trong thư mục Areas/Admin/Controllers *@
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                                                <i class="bi bi-tags me-2"></i> Quản lý danh mục
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Amenities" asp-action="Index">
+                                                <i class="bi bi-plug me-2"></i> Quản lý tiện ích
+                                            </a>
+                                        </li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="RoomManagement" asp-action="Index">Duyệt tin đăng</a></li>
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Rooms" asp-action="Index">
+                                                <i class="bi bi-check2-square me-2"></i> Duyệt tin đăng
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             }
 
                             @* MENU CHO CHỦ TRỌ (HOST) *@
-                            @if (User.IsInRole("Host"))
+                            if (User.IsInRole("Host"))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-primary" href="#" id="hostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         Khu vực Chủ trọ
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="hostDropdown">
+                                    <ul class="dropdown-menu shadow" aria-labelledby="hostDropdown">
                                         <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">Đăng tin mới</a></li>
                                         <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Danh sách phòng của tôi</a></li>
                                         <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê/ở ghép</a></li>
@@ -58,7 +79,7 @@
                             }
 
                             @* MENU CHO NGƯỜI THUÊ (MEMBER/CUSTOMER) *@
-                            @if (User.IsInRole("Member"))
+                            if (User.IsInRole("Member") || User.IsInRole("Customer"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="Customer" asp-controller="Favorite" asp-action="Index">Tin đã lưu</a>
@@ -75,15 +96,15 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="container-fluid p-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DoAnCk - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted bg-light py-3 mt-5">
+        <div class="container text-center">
+            &copy; 2026 - <strong>DoAnCk</strong> - <a asp-area="" asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
         </div>
     </footer>
 
