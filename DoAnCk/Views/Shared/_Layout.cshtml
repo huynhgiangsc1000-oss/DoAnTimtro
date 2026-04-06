@@ -9,199 +9,141 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EasyRent</title>
-    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
     <style>
-        :root {
-            --pt-teal: #17a2b8;
-            --pt-text-main: #004d61;
-        }
-
-        .pt-navbar {
-            background: rgba(255, 255, 255, 0.98) !important;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            min-height: 80px;
-            z-index: 1050;
-        }
-
         .nav-link {
-            color: var(--pt-text-main) !important;
             font-weight: 500;
             transition: 0.3s;
             border-radius: 8px;
         }
 
-        .nav-link:hover {
-            background-color: #f8f9fa;
-            color: var(--pt-teal) !important;
+            .nav-link:hover {
+                background-color: #f8f9fa;
+                color: #0d6efd !important;
+            }
+
+        .admin-nav .nav-link {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
         }
 
         .active-link {
             color: #0d6efd !important;
             background-color: #e7f1ff;
         }
-
-        body {
-            padding-top: 90px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Nav Icons & Badge */
-        .nav-icon-link {
-            position: relative;
-            color: var(--pt-text-main);
-            font-size: 1.2rem;
-            padding: 8px 12px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .badge-notify {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #ff4757;
-            color: white;
-            font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 10px;
-            border: 2px solid white;
-        }
-
+        /* Tách biệt các nhóm bằng đường kẻ dọc nhẹ */
         .nav-divider {
             border-left: 1px solid #dee2e6;
             margin: 0 10px;
             height: 24px;
             align-self: center;
         }
-
-        /* Dropdown Custom */
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-radius: 12px;
-        }
-
-        .noti-dropdown { width: 320px; max-height: 450px; overflow-y: auto; }
-        
-        @("@")media (max-width: 991.98px) {
-            .nav-divider { display: none; }
-            .nav-icon-text { display: inline-block; margin-left: 10px; }
-            body { padding-top: 80px; }
-        }
-        @("@")media (min-width: 992px) {
-            .nav-icon-text { display: none; }
-        }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light fixed-top pt-navbar border-bottom">
-            <div class="container-fluid px-lg-5">
-                <a class="navbar-brand fw-bold fs-3 text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    EasyRent
+        <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light bg-white border-bottom shadow-sm mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-heart-fill"></i> EasyRent
                 </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 admin-nav">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-search"></i> Tìm phòng
+                            </a>
                         </li>
 
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @if (SignInManager.IsSignedIn(User))
                         {
-                            @* GIỮ NGUYÊN PHẦN ADMIN TỪ MAIN *@
+                            @* --- PHÂN HỆ ADMIN --- *@
                             @if (User.IsInRole("Admin"))
                             {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-user-shield me-1"></i> Quản trị viên
+                                <div class="nav-divider"></div>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" asp-area="Admin" asp-controller="Rooms" asp-action="Index">
+                                        <i class="bi bi-check2-square"></i> Duyệt tin
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Quản lý danh mục</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Quản lý tiện ích</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="RoomManagement" asp-action="Index">Duyệt tin đăng</a></li>
-                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                        <i class="bi bi-people"></i> Người dùng
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                                        <i class="bi bi-tags"></i> Danh mục
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Amenities" asp-action="Index">
+                                        <i class="bi bi-gear"></i> Tiện ích
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Reviews" asp-action="Index">
+                                        <i class="bi bi-chat-left-dots"></i> Bình luận
+                                    </a>
                                 </li>
                             }
 
-                            @* MENU CHỦ TRỌ *@
+                            @* --- PHÂN HỆ CHỦ TRỌ (LANDLORD / HOST) --- *@
                             @if (User.IsInRole("Host"))
                             {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-primary" href="#" id="hostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-house me-1"></i> Khu vực Chủ trọ
+                                <div class="nav-divider"></div>
+                                <li class="nav-item">
+                                    <a class="nav-link text-success fw-bold" asp-area="Landlord" asp-controller="MyRooms" asp-action="Create">
+                                        <i class="bi bi-plus-circle"></i> Đăng tin mới
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="hostDropdown">
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">Đăng tin mới</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Danh sách phòng của tôi</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê/ở ghép</a></li>
-                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Landlord" asp-controller="MyRooms" asp-action="Index">
+                                        <i class="bi bi-list-stars"></i> Phòng của tôi
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Landlord" asp-controller="RoomRequests" asp-action="Index">
+                                        <i class="bi bi-bell"></i> Yêu cầu thuê
+                                    </a>
+                                </li>
+                            }
+
+                            @* --- PHÂN HỆ NGƯỜI THUÊ (CUSTOMER / MEMBER) --- *@
+                            @if (User.IsInRole("Member") || User.IsInRole("Customer"))
+                            {
+                                <div class="nav-divider"></div>
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger" asp-area="Customer" asp-controller="Favorite" asp-action="Index">
+                                        <i class="bi bi-heart-fill"></i> Đã lưu
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="MyRequest" asp-action="Index">
+                                        <i class="bi bi-send"></i> Yêu cầu đã gửi
+                                    </a>
                                 </li>
                             }
                         }
                     </ul>
-
-                    @* ICONS TIỆN ÍCH CHO NGƯỜI DÙNG *@
-                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-2 me-lg-3">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <div class="nav-divider"></div>
-                            <a class="nav-icon-link" asp-area="Customer" asp-controller="Favorites" asp-action="Index" title="Tin đã lưu">
-                                <i class="fa-regular fa-heart"></i>
-                                <span class="nav-icon-text">Tin đã lưu</span>
-                            </a>
-
-                            <a class="nav-icon-link" asp-area="Customer" asp-controller="RoomRequests" asp-action="Index" title="Yêu cầu của tôi">
-                                <i class="fa-regular fa-paper-plane"></i>
-                                <span class="nav-icon-text">Yêu cầu của tôi</span>
-                            </a>
-
-                            @* DROPDOWN THÔNG BÁO *@
-                            <div class="dropdown">
-                                <a class="nav-icon-link dropdown-toggle" href="#" id="notiBtn" data-bs-toggle="dropdown" style="after {display:none}">
-                                    <i class="fa-regular fa-bell"></i>
-                                    <span class="badge-notify">2</span>
-                                    <span class="nav-icon-text">Thông báo</span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end noti-dropdown">
-                                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">Thông báo</span>
-                                        <small class="text-primary cursor-pointer">Đã đọc tất cả</small>
-                                    </div>
-                                    <div class="noti-list">
-                                        <a href="#" class="dropdown-item py-2 border-bottom">
-                                            <div class="small fw-bold">Yêu cầu được chấp nhận!</div>
-                                            <div class="small text-muted">Chủ trọ đã đồng ý xem phòng...</div>
-                                        </a>
-                                    </div>
-                                    <a href="#" class="d-block text-center p-2 small text-primary text-decoration-none">Xem tất cả</a>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="container-fluid px-lg-5">
-        <main role="main" class="pb-5">
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>

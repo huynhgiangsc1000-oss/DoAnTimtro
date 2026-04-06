@@ -5,19 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cấu hình Database
+// 1. Kết nối Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    ?? throw new InvalidOperationException("Chưa cấu hình DefaultConnection trong appsettings.json");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-// 2. Cấu hình Identity với ID dạng chuỗi (Mặc định của User và Role)
-// Đảm bảo class User : IdentityUser và class Role : IdentityRole (không có <int>)
+// 2. Cấu hình Identity (Sử dụng User và Role bạn đã tạo)
 builder.Services.AddIdentity<User, Role>(options => {
-    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
@@ -31,18 +27,8 @@ builder.Services.AddIdentity<User, Role>(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// 3. Cấu hình Cookie
-builder.Services.ConfigureApplicationCookie(options => {
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-});
-
 var app = builder.Build();
 
-// 4. Middleware Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -56,24 +42,14 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 5. Định nghĩa Route
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapControllerRoute(name: "areas", pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-// ... (Giữ nguyên phần cấu hình từ bước 1 đến bước 5)
-
-// 6. Seed Data: Tự động tạo các Role hệ thống
+// 3. Seed Data (Tạo Role mà không làm treo ứng dụng)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -81,26 +57,20 @@ using (var scope = app.Services.CreateScope())
     {
         var roleManager = services.GetRequiredService<RoleManager<Role>>();
         string[] roleNames = { "Admin", "Host", "Member" };
-
         foreach (var roleName in roleNames)
         {
-            // Kiểm tra Role đã tồn tại chưa
-            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            // Chạy đồng bộ để đảm bảo khởi tạo xong trước khi app chạy
+            var roleExist = roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult();
             if (!roleExist)
             {
-                // Tạo Role mới với đầy đủ thông tin chuẩn hóa
-                await roleManager.CreateAsync(new Role 
-                { 
-                    Name = roleName,
-                    NormalizedName = roleName.ToUpper() 
-                });
+                roleManager.CreateAsync(new Role { Name = roleName, NormalizedName = roleName.ToUpper() }).GetAwaiter().GetResult();
             }
         }
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Có lỗi xảy ra khi Seed Data Role vào Database.");
+        logger.LogError(ex, "Lỗi khi tạo Role mặc định.");
     }
 }
 

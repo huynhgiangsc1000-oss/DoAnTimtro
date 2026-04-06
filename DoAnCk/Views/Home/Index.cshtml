@@ -1,179 +1,43 @@
 @using DoAnCk.Models.Entities
 @model IEnumerable<DoAnCk.Models.Entities.Room>
 
-@{
-    ViewData["Title"] = "Phòng Tốt - Tìm phòng thông minh, chốn về cực xinh";
-}
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-    :root {
-        --pt-teal: #17a2b8;
-        --pt-teal-dark: #138496;
-        --pt-teal-light: #5edfff;
-        --pt-orange: #ff8800;
-        --pt-orange-light: #ffc107;
-        --pt-text-main: #004d61;
-        --pt-text-body: #555555;
-        --pt-bg-gray: #f4f7f6;
-        --pt-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    body {
-        font-family: 'Lexend', sans-serif;
-        background-color: white;
-        color: var(--pt-text-body);
-    }
-
-    .hero-container {
-        position: relative;
-        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/images/tro.jpg');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        color: white;
-        border-radius: 0 0 50px 50px;
-        overflow: hidden;
-        padding-top: 140px;
-        padding-bottom: 80px;
-        margin-top: -80px;
-    }
-
-    .hero-content h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        line-height: 1.2;
-        margin-bottom: 30px;
-        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    .hero-content h1 span { color: var(--pt-teal-light); }
-    .hero-content p { font-size: 1.2rem; font-weight: 400; margin-bottom: 40px; opacity: 0.9; }
-
-    .pt-search-main-wrapper { position: relative; z-index: 10; margin-top: -60px; }
-    .pt-search-card { background: white; padding: 10px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
-    .pt-filter-tabs { display: flex; gap: 5px; margin-left: 20px; margin-bottom: -1px; }
-    .pt-filter-tab { padding: 8px 20px; background: rgba(23, 162, 184, 0.8); backdrop-filter: blur(5px); border-radius: 12px 12px 0 0; color: white; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.3s; border: none; }
-    .pt-filter-tab.active, .pt-filter-tab:hover { background: white; color: var(--pt-teal); }
-    .pt-search-inputs { display: flex; gap: 10px; align-items: center; }
-    .pt-search-input-group { position: relative; flex-grow: 1; }
-    .pt-search-input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #ccc; }
-    .pt-search-input-group input { width: 100%; padding: 12px 15px 12px 45px; border-radius: 30px; border: 1px solid #eee; font-size: 0.95rem; }
-    .pt-filter-group { flex-shrink: 0; display: flex; gap: 5px; }
-    .pt-filter-group select { padding: 12px; border-radius: 30px; border: 1px solid #eee; background: white; font-size: 0.9rem; color: #777; }
-    .pt-btn-reset { background: none; border: none; color: var(--pt-text-body); font-size: 0.9rem; text-decoration: underline; }
-
-    .pt-promo-card { background: linear-gradient(90deg, var(--pt-orange), var(--pt-orange-light)); border-radius: 15px; padding: 20px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-
-    .section-title { color: var(--pt-text-main); font-weight: 700; font-size: 1.8rem; margin-top: 60px; margin-bottom: 30px; }
-    .section-header-row { display: flex; justify-content: space-between; align-items: end; margin-bottom: 30px; }
-
-    /* --- ROOM CARDS --- */
-    .pt-room-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: var(--pt-card-shadow); transition: 0.4s; border: none; height: 100%; }
-    .pt-room-card:hover { transform: translateY(-8px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); }
-    .pt-card-img-wrapper { position: relative; height: 220px; }
-    .pt-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-    .pt-badge-vip { position: absolute; top: 15px; left: 15px; background: #ff4757; color: white; padding: 4px 12px; border-radius: 30px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; z-index: 2;}
-    .pt-rating-badge { position: absolute; bottom: 15px; left: 15px; background: rgba(255, 255, 255, 0.9); color: var(--pt-orange); padding: 3px 10px; border-radius: 5px; font-weight: 700; font-size: 0.8rem; }
-    .pt-wishlist-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.3); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer; }
-
-    .pt-room-body { padding: 20px; }
-    .pt-room-title { font-size: 1.1rem; font-weight: 600; color: var(--pt-text-main); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem; line-height: 1.4; }
-    .pt-room-loc { font-size: 0.9rem; color: var(--pt-text-body); margin-bottom: 15px; }
-    .pt-room-footer { border-top: 1px solid #eee; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
-    .pt-room-price { color: var(--pt-teal); font-weight: 800; font-size: 1.3rem; }
-
-    .pt-area-card { background: white; border-radius: 12px; padding: 15px; text-align: center; box-shadow: var(--pt-card-shadow); transition: 0.3s; cursor: pointer; }
-    .pt-area-card:hover { transform: scale(1.05); color: var(--pt-teal); }
-    .pt-area-card i { font-size: 2rem; color: var(--pt-teal); margin-bottom: 10px; }
-
-    .pt-blog-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: var(--pt-card-shadow); height: 100%; }
-    .pt-blog-img { height: 180px; }
-    .pt-blog-img img { width: 100%; height: 100%; object-fit: cover; }
-    .pt-blog-body { padding: 15px; }
-    .pt-blog-title { font-weight: 600; font-size: 1rem; color: var(--pt-text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-    .main-footer { background: var(--pt-bg-gray); color: var(--pt-text-body); padding: 70px 0; margin-top: 80px; border-top: 1px solid #eee; }
-</style>
-
-<div class="hero-container text-center">
-    <div class="container hero-content">
-        <h1>Tìm phòng thông minh,<br>chốn về <span>"cực xinh"</span>.</h1>
-        <p>Hệ thống dữ liệu phòng trọ xác thực lớn nhất Việt Nam, tìm là thấy!</p>
-    </div>
-</div>
-
-<div class="container pt-search-main-wrapper">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="pt-filter-tabs">
-                <button class="pt-filter-tab active">Tất cả</button>
-                <button class="pt-filter-tab">Phòng trọ</button>
-            </div>
-            <div class="pt-search-card">
-                <form asp-action="Index" asp-controller="Rooms" method="get">
-                    <div class="pt-search-inputs">
-                        <div class="pt-search-input-group">
-                            <i class="fas fa-search"></i>
-                            <input type="text" name="search" placeholder="Tìm theo tên khu vực, trường...">
-                        </div>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">Tìm kiếm</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container mt-5 pt-4">
-    <h2 class="section-title">Lựa chọn tốt nhất cho bạn</h2>
-    <div class="row g-4 mb-5">
-        @if (Model != null && Model.Any())
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary fw-bold">Phòng trọ mới nhất</h2>
+    <div class="row g-4">
+        @if (Model != null)
         {
-            @foreach (var item in Model)
+            foreach (var item in Model)
             {
-                <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="pt-room-card">
-                        <div class="pt-card-img-wrapper">
-                            <span class="pt-badge-vip">Mới</span>
-                            <button class="pt-wishlist-btn"><i class="far fa-heart"></i></button>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                        <div style="height: 180px; background: #eee;">
                             @{
-                                var firstImage = item.Images?.FirstOrDefault()?.ImageUrl;
-                                var displayImg = !string.IsNullOrEmpty(firstImage) ? firstImage : "https://via.placeholder.com/400x300?text=No+Image";
+                                var imgUrl = item.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl
+                                ?? item.Images?.FirstOrDefault()?.ImageUrl
+                                ?? "/images/no-image.jpg";
                             }
-                            <img src="@displayImg" alt="@item.Title" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                            <img src="@imgUrl" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="@item.Title">
                         </div>
-                        <div class="pt-room-body">
-                            <h5 class="pt-room-title">@item.Title</h5>
-                            <div class="pt-room-loc text-muted"><i class="bi bi-geo-alt me-1"></i>@item.Address</div>
-                            <div class="pt-room-footer">
-                                <span class="pt-room-price">@item.Price.ToString("N0") đ</span>
-                                <a asp-action="Details" asp-controller="Rooms" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">Chi tiết</a>
+                        <div class="card-body">
+                            @* LỖI TẠI ĐÂY ĐÃ ĐƯỢC SỬA: Thay .Name bằng .Title *@
+                            <h6 class="card-title fw-bold text-truncate" title="@item.Title">@item.Title</h6>
+
+                            <p class="card-text text-muted small mb-2">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> @(item.Address ?? "Chưa có địa chỉ")
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">@item.Price.ToString("N0") đ</span>
+                                <span class="badge bg-light text-dark border">@item.Area m²</span>
                             </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                                Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>
             }
         }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <p>Hiện không có phòng nào để hiển thị.</p>
-            </div>
-        }
     </div>
 </div>
-
-<script>
-    document.querySelectorAll('.pt-wishlist-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            icon.classList.toggle('far');
-            icon.classList.toggle('fas');
-            this.style.background = icon.classList.contains('fas') ? '#ff4757' : 'rgba(0,0,0,0.3)';
-        });
-    });
-</script>
