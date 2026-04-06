@@ -1,41 +1,44 @@
 ﻿@model IEnumerable<DoAnCk.Models.Entities.Amenity>
 
-@{
-    ViewData["Title"] = "Index";
-}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Danh sách tiện ích</h2>
+    <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm">
+        <i class="bi bi-plus-circle"></i> Thêm tiện ích mới
+    </a>
+</div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IconClass)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IconClass)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Icon mẫu</th>
+                    <th>Tên tiện ích</th>
+                    <th>Mã Icon (Class)</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            @* Hiển thị icon thực tế để Admin kiểm tra *@
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="@item.IconClass text-primary fs-5"></i>
+                            </div>
+                        </td>
+                        <td class="fw-bold">@item.Name</td>
+                        <td><code>@item.IconClass</code></td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0"><i class="bi bi-pencil-square"></i> Sửa</a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa tiện ích này?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i> Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
