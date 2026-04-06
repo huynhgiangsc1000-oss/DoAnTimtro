@@ -1,17 +1,54 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Identity
+@using DoAnCk.Models.Entities
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DoAnCk</title>
+    <title>@ViewData["Title"] - EasyRent</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/DoAnCk.styles.css" asp-append-version="true" />
+    <style>
+        .nav-link {
+            font-weight: 500;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+
+            .nav-link:hover {
+                background-color: #f8f9fa;
+                color: #0d6efd !important;
+            }
+
+        .admin-nav .nav-link {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+
+        .active-link {
+            color: #0d6efd !important;
+            background-color: #e7f1ff;
+        }
+        /* Tách biệt các nhóm bằng đường kẻ dọc nhẹ */
+        .nav-divider {
+            border-left: 1px solid #dee2e6;
+            margin: 0 10px;
+            height: 24px;
+            align-self: center;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light bg-white border-bottom shadow-sm mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">DoAnCk</a>
 
@@ -31,7 +68,7 @@
 
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
-                            @* MENU CHO ADMIN *@
+                            @* --- PHÂN HỆ ADMIN --- *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
@@ -99,6 +136,7 @@
                             @* MENU CHO NGƯỜI THUÊ *@
                             @if (User.IsInRole("Member"))
                             {
+                                <div class="nav-divider"></div>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="Customer" asp-controller="Favorites" asp-action="Index">
                                         <i class="fa-regular fa-heart me-1"></i> Tin đã lưu
@@ -126,15 +164,18 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="container-fluid">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DoAnCk - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted bg-light py-4 mt-auto">
+        <div class="container text-center">
+            <div class="mb-2">
+                <span class="fw-bold text-primary">EasyRent</span> - Hệ thống quản lý và tìm kiếm phòng trọ số 1.
+            </div>
+            &copy; 2026 - <strong>EasyRentProject</strong> - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Chính sách bảo mật</a>
         </div>
     </footer>
 

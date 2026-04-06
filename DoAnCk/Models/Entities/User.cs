@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DoAnCk.Models.Entities
 {
-    public class User : IdentityUser<int>
+    public class User : IdentityUser
     {
         public string FullName { get; set; }
         public string? Bio { get; set; } // Giới thiệu bản thân để tìm người ở ghép
