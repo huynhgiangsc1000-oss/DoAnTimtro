@@ -13,62 +13,113 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DoAnCk</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">DoAnCk</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                Trang chủ
+                            </a>
                         </li>
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             @* MENU CHO ADMIN *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Quản trị viên
+                                    <a class="nav-link dropdown-toggle text-danger fw-bold"
+                                       href="#"
+                                       id="adminDropdown"
+                                       role="button"
+                                       data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        <i class="fa-solid fa-user-shield me-1"></i> Quản trị viên
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Quản lý danh mục</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Quản lý tiện ích</a></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">
+                                                Quản lý danh mục
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">
+                                                Quản lý tiện ích
+                                            </a>
+                                        </li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="RoomManagement" asp-action="Index">Duyệt tin đăng</a></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Admin" asp-controller="RoomManagement" asp-action="Index">
+                                                Duyệt tin đăng
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             }
 
-                            @* MENU CHO CHỦ TRỌ (HOST) *@
+                            @* MENU CHO CHỦ TRỌ *@
                             @if (User.IsInRole("Host"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-primary" href="#" id="hostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Khu vực Chủ trọ
+                                    <a class="nav-link dropdown-toggle text-primary"
+                                       href="#"
+                                       id="hostDropdown"
+                                       role="button"
+                                       data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        <i class="fa-solid fa-house me-1"></i> Khu vực Chủ trọ
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="hostDropdown">
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">Đăng tin mới</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Danh sách phòng của tôi</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê/ở ghép</a></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">
+                                                Đăng tin mới
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">
+                                                Danh sách phòng của tôi
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">
+                                                Yêu cầu thuê/ở ghép
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             }
 
-                            @* MENU CHO NGƯỜI THUÊ (MEMBER/CUSTOMER) *@
+                            @* MENU CHO NGƯỜI THUÊ *@
                             @if (User.IsInRole("Member"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Favorite" asp-action="Index">Tin đã lưu</a>
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Favorites" asp-action="Index">
+                                        <i class="fa-regular fa-heart me-1"></i> Tin đã lưu
+                                    </a>
                                 </li>
+
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="MyRequest" asp-action="Index">Yêu cầu của tôi</a>
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="RoomRequests" asp-action="Index">
+                                        <i class="fa-regular fa-paper-plane me-1"></i> Yêu cầu của tôi
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Reviews" asp-action="Index">
+                                        <i class="fa-regular fa-star me-1"></i> Đánh giá của tôi
+                                    </a>
                                 </li>
                             }
                         }
                     </ul>
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>
