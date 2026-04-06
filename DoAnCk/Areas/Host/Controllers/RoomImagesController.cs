@@ -1,44 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DoAnCk.Data;
 using DoAnCk.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DoAnCk.Areas.Host.Controllers
 {
     [Area("Host")]
+    [Authorize(Roles = "Host")] // Đảm bảo chỉ Host mới truy cập được
     public class RoomImagesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public RoomImagesController(ApplicationDbContext context)
+        public RoomImagesController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
-        // GET: Host/RoomImages
-        public async Task<IActionResult> Index()
+        // Helper lấy ID người dùng hiện tại
+        private int GetCurrentUserId()
         {
-            var applicationDbContext = _context.RoomImages.Include(r => r.Room);
-            return View(await applicationDbContext.ToListAsync());
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim) : 0;
+        }
+
+        // GET: Host/RoomImages?roomId=5
+        public async Task<IActionResult> Index(int roomId)
+        {
+            // Kiểm tra quyền sở hữu phòng trước khi cho phép xem ảnh
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId && r.UserId == GetCurrentUserId());
+            if (room == null) return NotFound();
+
+            ViewBag.RoomId = roomId;
+            ViewBag.RoomTitle = room.Title;
+
+            var images = await _context.RoomImages
+                .Where(i => i.RoomId == roomId)
+                .ToListAsync();
+            return View(images);
         }
 
         // GET: Host/RoomImages/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var roomImage = await _context.RoomImages
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomImage == null)
+
+            if (roomImage == null || roomImage.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
@@ -46,95 +60,114 @@ namespace DoAnCk.Areas.Host.Controllers
             return View(roomImage);
         }
 
-        // GET: Host/RoomImages/Create
-        public IActionResult Create()
+        // GET: Host/RoomImages/Create?roomId=5
+        public IActionResult Create(int roomId)
         {
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title");
-            return View();
+            // Kiểm tra phòng có tồn tại và thuộc chủ này không
+            var roomExists = _context.Rooms.Any(r => r.Id == roomId && r.UserId == GetCurrentUserId());
+            if (!roomExists) return NotFound();
+
+            return View(new RoomImage { RoomId = roomId });
         }
 
-        // POST: Host/RoomImages/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ImageUrl,IsMain,RoomId")] RoomImage roomImage)
+        public async Task<IActionResult> Create(int roomId, IFormFile imageFile)
         {
-            if (ModelState.IsValid)
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId && r.UserId == GetCurrentUserId());
+            if (room == null) return NotFound();
+
+            if (imageFile != null && imageFile.Length > 0)
             {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                string uploadPath = Path.Combine(_hostEnvironment.WebRootPath, "images/rooms");
+
+                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                string filePath = Path.Combine(uploadPath, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                var roomImage = new RoomImage
+                {
+                    RoomId = roomId,
+                    ImageUrl = "/images/rooms/" + fileName
+                };
+
                 _context.Add(roomImage);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { roomId = roomId });
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomImage.RoomId);
-            return View(roomImage);
+            return View();
         }
 
         // GET: Host/RoomImages/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var roomImage = await _context.RoomImages.FindAsync(id);
-            if (roomImage == null)
+            var roomImage = await _context.RoomImages
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (roomImage == null || roomImage.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomImage.RoomId);
             return View(roomImage);
         }
 
-        // POST: Host/RoomImages/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ImageUrl,IsMain,RoomId")] RoomImage roomImage)
+        public async Task<IActionResult> Edit(int id, IFormFile? newImageFile, RoomImage roomImage)
         {
-            if (id != roomImage.Id)
+            if (id != roomImage.Id) return NotFound();
+
+            var existingImage = await _context.RoomImages
+                .Include(i => i.Room)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (existingImage == null || existingImage.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (newImageFile != null && newImageFile.Length > 0)
             {
-                try
+                // Xóa ảnh cũ vật lý
+                var oldPath = Path.Combine(_hostEnvironment.WebRootPath, existingImage.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+
+                // Lưu ảnh mới
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(newImageFile.FileName);
+                string uploadPath = Path.Combine(_hostEnvironment.WebRootPath, "images/rooms");
+                string filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    _context.Update(roomImage);
-                    await _context.SaveChangesAsync();
+                    await newImageFile.CopyToAsync(stream);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoomImageExists(roomImage.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+
+                existingImage.ImageUrl = "/images/rooms/" + fileName;
+                _context.Update(existingImage);
+                await _context.SaveChangesAsync();
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomImage.RoomId);
-            return View(roomImage);
+
+            return RedirectToAction(nameof(Index), new { roomId = existingImage.RoomId });
         }
 
         // GET: Host/RoomImages/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var roomImage = await _context.RoomImages
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomImage == null)
+
+            if (roomImage == null || roomImage.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
@@ -147,19 +180,20 @@ namespace DoAnCk.Areas.Host.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var roomImage = await _context.RoomImages.FindAsync(id);
-            if (roomImage != null)
+            var image = await _context.RoomImages
+                .Include(i => i.Room)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (image != null && image.Room.UserId == GetCurrentUserId())
             {
-                _context.RoomImages.Remove(roomImage);
+                var filePath = Path.Combine(_hostEnvironment.WebRootPath, image.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+
+                _context.RoomImages.Remove(image);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index), new { roomId = image.RoomId });
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool RoomImageExists(int id)
-        {
-            return _context.RoomImages.Any(e => e.Id == id);
+            return RedirectToAction("Index", "Rooms");
         }
     }
 }

@@ -97,27 +97,39 @@
                                     </a>
                                 </li>
                             }
-
-                            @* --- PHÂN HỆ CHỦ TRỌ (LANDLORD / HOST) --- *@
+                            @* MENU CHO CHỦ TRỌ (HOST) - ĐÃ HOÀN CHỈNH *@
                             @if (User.IsInRole("Host"))
                             {
-                                <div class="nav-divider"></div>
-                                <li class="nav-item">
-                                    <a class="nav-link text-success fw-bold" asp-area="Landlord" asp-controller="MyRooms" asp-action="Create">
-                                        <i class="bi bi-plus-circle"></i> Đăng tin mới
+                                <li class="nav-item me-2">
+                                    <a class="btn btn-info btn-sm text-white rounded-pill px-3 shadow-sm fw-bold transition-all"
+                                       asp-area="Host" asp-controller="Rooms" asp-action="Create">
+                                        <i class="fas fa-plus-circle me-1"></i> Đăng tin
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Landlord" asp-controller="MyRooms" asp-action="Index">
-                                        <i class="bi bi-list-stars"></i> Phòng của tôi
+                                    <a class="nav-link fw-medium px-3" asp-area="Host" asp-controller="Rooms" asp-action="Index">
+                                        <i class="fas fa-home me-1 text-primary"></i>
+                                        <span class="d-none d-xl-inline">Phòng của tôi</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Landlord" asp-controller="RoomRequests" asp-action="Index">
-                                        <i class="bi bi-bell"></i> Yêu cầu thuê
+                                    <a class="nav-link fw-medium px-3 position-relative" asp-area="Host" asp-controller="RoomRequests" asp-action="Index">
+                                        <i class="fas fa-envelope-open-text me-1 text-warning"></i>
+                                        <span class="d-none d-xl-inline">Yêu cầu</span>
+
+                                        @* Giả sử bạn truyền số lượng qua ViewBag.PendingRequests *@
+                                        @if (ViewBag.PendingRequests > 0)
+                                        {
+                                            <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                                                @ViewBag.PendingRequests
+                                            </span>
+                                        }
                                     </a>
                                 </li>
                             }
+                            
 
                             @* --- PHÂN HỆ NGƯỜI THUÊ (CUSTOMER / MEMBER) --- *@
                             @if (User.IsInRole("Member") || User.IsInRole("Customer"))

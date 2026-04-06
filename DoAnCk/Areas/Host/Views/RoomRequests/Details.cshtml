@@ -1,49 +1,67 @@
-﻿@model DoAnCk.Models.Entities.RoomRequest
+﻿@using DoAnCk.Models.Entities
+@model DoAnCk.Models.Entities.RoomRequest
 
-@{
-    ViewData["Title"] = "Details";
-    Layout = "RoomRequestController";
-}
-
-<h1>Details</h1>
-
-<div>
-    <h4>RoomRequest</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Sender)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sender.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Message)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Message)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RequestDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RequestDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="text-primary mb-0"><i class="fas fa-info-circle"></i> Chi tiết yêu cầu</h4>
+                    <span class="badge @(Model.Status == RequestStatus.Pending ? "bg-warning text-dark" : Model.Status == RequestStatus.Accepted ? "bg-success" : "bg-danger")">
+                        @Model.Status
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Khách hàng:</div>
+                        <div class="col-sm-8">@Model.Sender?.FullName</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Số điện thoại:</div>
+                        <div class="col-sm-8">
+                            <a href="tel:@Model.Sender?.PhoneNumber" class="text-decoration-none">
+                                <i class="fas fa-phone-alt me-1"></i> @Model.Sender?.PhoneNumber
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Phòng quan tâm:</div>
+                        <div class="col-sm-8 text-primary fw-bold">@Model.Room?.Title</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Ngày gửi:</div>
+                        <div class="col-sm-8">@Model.RequestDate.ToString("dd/MM/yyyy HH:mm:ss")</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Lời nhắn từ khách:</div>
+                        <div class="col-sm-8 p-3 bg-light rounded italic">
+                            "@(string.IsNullOrEmpty(Model.Message) ? "Không có lời nhắn." : Model.Message)"
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white py-3">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                        @if (Model.Status == RequestStatus.Pending)
+                        {
+                            <div>
+                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="requestId" value="@Model.Id" />
+                                    <input type="hidden" name="status" value="@RequestStatus.Accepted" />
+                                    <button type="submit" class="btn btn-success">Chấp nhận</button>
+                                </form>
+                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="requestId" value="@Model.Id" />
+                                    <input type="hidden" name="status" value="@RequestStatus.Rejected" />
+                                    <button type="submit" class="btn btn-danger">Từ chối</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

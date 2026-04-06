@@ -1,170 +1,272 @@
-﻿@model IEnumerable<DoAnCk.Models.Entities.Room>
+@model IEnumerable<DoAnCk.Models.Entities.Room>
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "RoomController";
-}
+<div class="container-fluid px-4 pb-5">
+    @* Tiêu đề và Nút thêm mới *@
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="text-uppercase fw-bold text-primary mb-0">Quản lý phòng trọ của tôi</h2>
+            <p class="text-muted small">Bạn đang có <span class="fw-bold text-dark">@Model.Count()</span> bài đăng trên hệ thống</p>
+        </div>
+        <a asp-action="Create" class="btn btn-success shadow-sm px-4 fw-bold rounded-pill">
+            <i class="fas fa-plus-circle me-1"></i> Đăng tin mới
+        </a>
+    </div>
 
-@* Anti-forgery token used by AJAX POSTs *@
-@Html.AntiForgeryToken()
+    @* Thông báo thành công *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 border-start border-4 border-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-<h1>Index</h1>
+    @* Bộ lọc *@
+    <div class="row mb-4 g-3">
+        <div class="col-md-5">
+            <div class="input-group shadow-sm border rounded-pill overflow-hidden bg-white">
+                <span class="input-group-text bg-white border-0 ps-3"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" id="searchInput" class="form-control border-0" placeholder="Tìm kiếm theo tiêu đề hoặc địa chỉ...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="statusFilter" class="form-select shadow-sm border rounded-pill">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="đã duyệt">Đã duyệt</option>
+                <option value="chờ duyệt">Chờ duyệt</option>
+            </select>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Area)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Latitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Longitude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsApproved)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Area)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Latitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Longitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsApproved)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Name)
-            </td>
-            <td>
-                @* Favorite button (AJAX) *@
-                <button type="button"
-                        class="btn btn-link p-0 favorite-btn"
-                        title="Yêu thích"
-                        data-room-id="@item.Id"
-                        aria-label="Favorite">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
-                |
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @* Bảng danh sách *@
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light border-bottom">
+                        <tr>
+                            <th class="ps-4" style="width: 120px;">Ảnh</th>
+                            <th>Tiêu đề bài đăng</th>
+                            <th>Loại phòng</th>
+                            <th>Giá thuê</th>
+                            <th>Diện tích</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomTableBody">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="room-row">
+                                <td class="ps-4">
+                                    <div class="position-relative group-image-hover">
+                                        @if (item.RoomImages != null && item.RoomImages.Any())
+                                        {
+                                            <img src="@item.RoomImages.First().ImageUrl" class="rounded-3 shadow-sm border" style="width: 80px; height: 60px; object-fit: cover;" />
+                                            @* Badge số lượng ảnh *@
+                                            <span class="position-absolute bottom-0 end-0 bg-dark opacity-75 text-white px-1 rounded-start" style="font-size: 10px;">
+                                                <i class="fas fa-camera me-1"></i>@item.RoomImages.Count()
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border" style="width: 80px; height: 60px;">
+                                                <i class="fas fa-image text-muted opacity-50"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark text-truncate title-cell" style="max-width: 250px;">@item.Title</div>
+                                    <small class="text-muted address-cell d-block"><i class="fas fa-map-marker-alt me-1 text-danger"></i>@item.Address</small>
+                                </td>
+                                <td><span class="badge rounded-pill border text-secondary bg-white fw-normal">@item.Category?.Name</span></td>
+                                <td class="text-danger fw-bold">@item.Price.ToString("N0") <small class="fw-normal text-muted">đ</small></td>
+                                <td>@item.Area.ToString("N0") <small class="text-muted">m²</small></td>
+                                <td class="status-cell">
+                                    @if (item.Status == 1 || (item.GetType().GetProperty("IsApproved") != null && item.IsApproved))
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                            <i class="fas fa-check-circle me-1"></i>Đã duyệt
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                                            <i class="fas fa-clock me-1"></i>Chờ duyệt
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        @* Nút Yêu thích *@
+                                        <button type="button" class="btn btn-sm btn-outline-warning border-0 shadow-none"
+                                                onclick="toggleFavorite(this, '@item.Id')" title="Yêu thích">
+                                            <i class="far fa-heart fs-5"></i>
+                                        </button>
+
+                                        @* Nút Quản lý ảnh (Chuyển nhanh đến tab ảnh trong Edit) *@
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success border-0" title="Quản lý ảnh">
+                                            <i class="fas fa-images fs-5"></i>
+                                        </a>
+
+                                        @* Nút Xem chi tiết *@
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info border-0" title="Xem chi tiết">
+                                            <i class="fas fa-eye fs-5"></i>
+                                        </a>
+
+                                        @* Nút Chỉnh sửa *@
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0" title="Sửa tin">
+                                            <i class="fas fa-edit fs-5"></i>
+                                        </a>
+
+                                        @* Nút Xóa *@
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                                onclick="confirmDelete('@item.Id', '@item.Title')" title="Xóa">
+                                            <i class="fas fa-trash fs-5"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Xóa (Giữ nguyên từ code cũ của bạn nhưng bo góc tròn hơn) *@
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-danger text-white border-0 py-3">
+                <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo xóa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="deleteForm" method="post" asp-action="DeleteConfirmed">
+                @Html.AntiForgeryToken()
+                <div class="modal-body text-center p-4">
+                    <p class="text-muted mb-2">Hành động này sẽ xóa vĩnh viễn bài đăng:</p>
+                    <h5 id="deleteRoomTitle" class="text-dark fw-bold px-3"></h5>
+                    <input type="hidden" name="id" id="deleteRoomId" />
+                    <div class="alert alert-warning small mt-3 mb-0 rounded-3">
+                        Dữ liệu và hình ảnh liên quan sẽ không thể khôi phục.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-center pb-4">
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger px-4 rounded-pill shadow">Xác nhận xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        (function ($) {
-            $(function () {
-                // read antiforgery token rendered by @Html.AntiForgeryToken()
-                var token = $('input[name="__RequestVerificationToken"]').first().val();
+        // Logic lọc dữ liệu
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const statusQuery = document.getElementById('statusFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('.room-row');
 
-                // initialize favorite buttons state
-                $('.favorite-btn').each(function () {
-                    var btn = $(this);
-                    var roomId = btn.data('room-id');
+            rows.forEach(row => {
+                const title = row.querySelector('.title-cell').textContent.toLowerCase();
+                const address = row.querySelector('.address-cell').textContent.toLowerCase();
+                const status = row.querySelector('.status-cell').textContent.toLowerCase();
 
-                    $.get('/Customer/Favorites/IsFavorite', { roomId: roomId })
-                        .done(function (res) {
-                            if (res && res.success && res.isFavorite) {
-                                btn.addClass('favorited').html('<i class="fa-solid fa-heart text-danger"></i>');
-                            } else {
-                                btn.removeClass('favorited').html('<i class="fa-regular fa-heart"></i>');
-                            }
-                        })
-                        .fail(function () {
-                            // leave as default if request fails
-                        });
-                });
+                const matchesSearch = title.includes(searchQuery) || address.includes(searchQuery);
+                const matchesStatus = statusQuery === "" || status.includes(statusQuery);
 
-                // toggle favorite via AJAX
-                $(document).on('click', '.favorite-btn', function (e) {
-                    e.preventDefault();
-                    var btn = $(this);
-                    var roomId = btn.data('room-id');
-
-                    $.ajax({
-                        url: '/Customer/Favorites/Toggle',
-                        method: 'POST',
-                        headers: { 'RequestVerificationToken': token },
-                        data: { roomId: roomId },
-                        success: function (res) {
-                            if (res && res.success) {
-                                if (res.isFavorite) {
-                                    btn.addClass('favorited').html('<i class="fa-solid fa-heart text-danger"></i>');
-                                } else {
-                                    btn.removeClass('favorited').html('<i class="fa-regular fa-heart"></i>');
-                                }
-                            } else {
-                                alert(res && res.message ? res.message : 'Có lỗi xảy ra.');
-                            }
-                        },
-                        error: function (xhr) {
-                            if (xhr.status === 401) {
-                                // not authenticated: redirect to login (adjust path if you have custom login)
-                                window.location.href = '/Identity/Account/Login';
-                            } else {
-                                alert('Lỗi khi xử lý yêu thích. Vui lòng thử lại.');
-                            }
-                        }
-                    });
-                });
+                row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
             });
-        })(jQuery);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        // Hiển thị Modal xóa
+        function confirmDelete(id, title) {
+            document.getElementById('deleteRoomId').value = id;
+            document.getElementById('deleteRoomTitle').innerText = title;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Logic Yêu thích (Wishlist)
+        function toggleFavorite(btn, roomId) {
+            const icon = btn.querySelector('i');
+            // Toggle class biểu tượng
+            if (icon.classList.contains('far')) {
+                icon.classList.replace('far', 'fas');
+                icon.classList.add('text-warning');
+                // Gọi API thêm vào wishlist ở đây nếu cần
+                // console.log("Added to wishlist:", roomId);
+            } else {
+                icon.classList.replace('fas', 'far');
+                icon.classList.remove('text-warning');
+                // Gọi API xóa khỏi wishlist ở đây nếu cần
+            }
+        }
     </script>
+
+    <style>
+        /* Tùy chỉnh CSS để giao diện mượt mà hơn */
+        .room-row {
+            transition: all 0.2s ease;
+        }
+
+            .room-row:hover {
+                background-color: #f8f9ff !important;
+                transform: scale(1.002);
+            }
+
+        .title-cell {
+            font-size: 0.95rem;
+        }
+
+        .btn-sm i {
+            pointer-events: none;
+        }
+        /* Tránh lỗi khi click vào icon bên trong button */
+
+        .group-image-hover img {
+            transition: transform 0.3s ease;
+        }
+
+        .room-row:hover .group-image-hover img {
+            transform: scale(1.05);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            letter-spacing: 0.2px;
+        }
+
+        /* Nút thao tác hiệu ứng hover rực rỡ */
+        .btn-outline-warning:hover {
+            background: none;
+            color: #ffc107;
+        }
+
+        .btn-outline-primary:hover {
+            background: none;
+            color: #0d6efd;
+        }
+
+        .btn-outline-danger:hover {
+            background: none;
+            color: #dc3545;
+        }
+
+        .btn-outline-success:hover {
+            background: none;
+            color: #198754;
+        }
+
+        .btn-outline-info:hover {
+            background: none;
+            color: #0dcaf0;
+        }
+    </style>
 }

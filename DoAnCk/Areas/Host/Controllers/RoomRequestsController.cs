@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DoAnCk.Data;
 using DoAnCk.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DoAnCk.Areas.Host.Controllers
 {
     [Area("Host")]
+    [Authorize(Roles = "Host")]
     public class RoomRequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,152 +18,128 @@ namespace DoAnCk.Areas.Host.Controllers
             _context = context;
         }
 
-        // GET: Host/RoomRequests
-        public async Task<IActionResult> Index()
+        private int GetCurrentUserId()
         {
-            var applicationDbContext = _context.RoomRequests.Include(r => r.Room).Include(r => r.Sender);
-            return View(await applicationDbContext.ToListAsync());
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim) : 0;
         }
 
-        // GET: Host/RoomRequests/Details/5
+        public async Task<IActionResult> Index()
+        {
+            int userId = GetCurrentUserId();
+
+            var requests = await _context.RoomRequests
+                .Include(r => r.Room)
+                .Include(r => r.Sender)
+                .Where(r => r.Room != null && r.Room.UserId == userId) // Kiểm tra null cho Room
+                .OrderByDescending(r => r.RequestDate)
+                .ToListAsync();
+
+            ViewBag.PendingCount = requests.Count(r => r.Status == RequestStatus.Pending);
+            return View(requests);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var roomRequest = await _context.RoomRequests
+            var request = await _context.RoomRequests
                 .Include(r => r.Room)
                 .Include(r => r.Sender)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomRequest == null)
+
+            // Kiểm tra null an toàn (Fix lỗi Dereference)
+            if (request == null || request.Room == null || request.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
 
-            return View(roomRequest);
+            return View(request);
         }
 
-        // GET: Host/RoomRequests/Create
-        public IActionResult Create()
-        {
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title");
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Host/RoomRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RoomId,SenderId,Message,RequestDate,Status")] RoomRequest roomRequest)
+        public async Task<IActionResult> UpdateStatus(int id, RequestStatus status)
         {
-            if (ModelState.IsValid)
+            var request = await _context.RoomRequests
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null || request.Room == null || request.Room.UserId != GetCurrentUserId())
             {
-                _context.Add(roomRequest);
+                return NotFound();
+            }
+
+            try
+            {
+                request.Status = status;
+
+                // Sửa Approved thành Accepted để khớp với Enum
+                if (status == RequestStatus.Accepted)
+                {
+                    // Logic: request.Room.IsAvailable = false;
+                }
+
+                _context.Update(request);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Đã {(status == RequestStatus.Accepted ? "chấp nhận" : "từ chối")} yêu cầu.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Có lỗi xảy ra.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Status,Note")] RoomRequest roomRequest)
+        {
+            if (id != roomRequest.Id) return NotFound();
+
+            var existingRequest = await _context.RoomRequests
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (existingRequest == null || existingRequest.Room == null || existingRequest.Room.UserId != GetCurrentUserId())
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                existingRequest.Status = roomRequest.Status;
+                existingRequest.Note = roomRequest.Note;
+
+                _context.Update(existingRequest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomRequest.RoomId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", roomRequest.SenderId);
-            return View(roomRequest);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.RoomRequests.Any(e => e.Id == roomRequest.Id)) return NotFound();
+                else throw;
+            }
         }
 
-        // GET: Host/RoomRequests/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var roomRequest = await _context.RoomRequests.FindAsync(id);
-            if (roomRequest == null)
-            {
-                return NotFound();
-            }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomRequest.RoomId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", roomRequest.SenderId);
-            return View(roomRequest);
-        }
-
-        // POST: Host/RoomRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,SenderId,Message,RequestDate,Status")] RoomRequest roomRequest)
-        {
-            if (id != roomRequest.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(roomRequest);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoomRequestExists(roomRequest.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Title", roomRequest.RoomId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", roomRequest.SenderId);
-            return View(roomRequest);
-        }
-
-        // GET: Host/RoomRequests/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var roomRequest = await _context.RoomRequests
-                .Include(r => r.Room)
-                .Include(r => r.Sender)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(roomRequest);
-        }
-
-        // POST: Host/RoomRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var roomRequest = await _context.RoomRequests.FindAsync(id);
-            if (roomRequest != null)
+            var request = await _context.RoomRequests
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request != null && request.Room != null && request.Room.UserId == GetCurrentUserId())
             {
-                _context.RoomRequests.Remove(roomRequest);
+                _context.RoomRequests.Remove(request);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa yêu cầu.";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool RoomRequestExists(int id)
-        {
-            return _context.RoomRequests.Any(e => e.Id == id);
         }
     }
 }

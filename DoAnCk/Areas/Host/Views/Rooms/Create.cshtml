@@ -1,82 +1,175 @@
 ﻿@model DoAnCk.Models.Entities.Room
 
-@{
-    ViewData["Title"] = "Create";
-    Layout = "RoomController";
-}
+<div class="container mt-4 mb-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Đăng tin cho thuê mới</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h1>Create</h1>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label fw-bold text-primary">Tiêu đề tin bài</label>
+                            <input asp-for="Title" class="form-control form-control-lg" placeholder="Ví dụ: Phòng trọ giá rẻ gần ĐH Công nghệ..." />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
 
-<h4>Room</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Area" class="control-label"></label>
-                <input asp-for="Area" class="form-control" />
-                <span asp-validation-for="Area" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Latitude" class="control-label"></label>
-                <input asp-for="Latitude" class="form-control" />
-                <span asp-validation-for="Latitude" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Longitude" class="control-label"></label>
-                <input asp-for="Longitude" class="form-control" />
-                <span asp-validation-for="Longitude" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsApproved" /> @Html.DisplayNameFor(model => model.IsApproved)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                        <div class="form-group mb-3">
+                            <label asp-for="Address" class="form-label fw-bold text-primary">Địa chỉ chính xác</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                <input asp-for="Address" class="form-control border-start-0" placeholder="Số nhà, tên đường, Phường, Quận..." />
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-primary"><i class="fas fa-concierge-bell me-2"></i>Tiện ích đi kèm</label>
+                            <div class="row g-2 p-3 border rounded bg-light mx-0">
+                                @if (ViewBag.Amenities != null)
+                                {
+                                    foreach (var item in (List<DoAnCk.Models.Entities.Amenity>)ViewBag.Amenities)
+                                    {
+                                        <div class="col-6 col-sm-4 col-lg-3">
+                                            <div class="form-check custom-checkbox">
+                                                <input type="checkbox" name="selectedAmenities" value="@item.Id" class="form-check-input" id="amenity_@item.Id" />
+                                                <label class="form-check-label small fw-medium" for="amenity_@item.Id">@item.Name</label>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label fw-bold text-primary">Mô tả chi tiết</label>
+                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Nêu rõ các tiện ích, giờ giấc, nội quy..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Ảnh đã chọn:</label>
+                            <div id="imagePreview" class="row g-2">
+                                <div class="col-12">
+                                    <p class="text-muted small fst-italic">Chưa có ảnh nào được chọn.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light shadow-sm sticky-top" style="top: 20px;">
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label fw-bold">Giá thuê (VNĐ/tháng)</label>
+                                    <div class="input-group">
+                                        <input asp-for="Price" type="number" class="form-control fw-bold text-danger" placeholder="0" />
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Area" class="form-label fw-bold">Diện tích (m²)</label>
+                                    <div class="input-group">
+                                        <input asp-for="Area" type="number" class="form-control" placeholder="0" />
+                                        <span class="input-group-text">m²</span>
+                                    </div>
+                                    <span asp-validation-for="Area" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="CategoryId" class="form-label fw-bold">Loại phòng</label>
+                                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                                        <option value="">-- Chọn loại hình --</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Hình ảnh phòng</label>
+                                    <div class="upload-btn-wrapper w-100">
+                                        <input type="file" name="images" id="imageInput" class="form-control" multiple accept="image/*" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>Nên chọn ít nhất 3 ảnh rõ nét.</small>
+                                </div>
+
+                                <hr />
+                                <div class="alert alert-warning p-2 mb-0 border-0">
+                                    <small class="text-dark"><i class="fas fa-shield-alt me-1"></i> Tin đăng sẽ được quản trị viên kiểm duyệt trước khi hiển thị.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+                <div class="d-flex justify-content-between align-items-center">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 border-0">
+                        <i class="fas fa-chevron-left me-2"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
+                        <i class="fas fa-paper-plane me-2"></i> Đăng tin ngay
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<style>
+    .custom-checkbox .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+
+    .img-preview-card {
+        transition: transform 0.2s;
+        border: 2px solid #fff;
+    }
+
+        .img-preview-card:hover {
+            transform: scale(1.05);
+        }
+</style>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+
+            const files = event.target.files;
+            if (files.length === 0) {
+                previewContainer.innerHTML = '<div class="col-12"><p class="text-muted small fst-italic">Chưa có ảnh nào được chọn.</p></div>';
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-4 col-sm-3 col-md-2';
+                    col.innerHTML = `
+                        <div class="card img-preview-card shadow-sm h-100">
+                            <img src="${e.target.result}" class="card-img-top img-thumbnail p-0 border-0" style="height: 100px; object-fit: cover;">
+                        </div>
+                    `;
+                    previewContainer.appendChild(col);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
 }

@@ -1,60 +1,91 @@
-﻿@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
+﻿@using DoAnCk.Models.Entities
+@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "RoomRequestController";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Room)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sender)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Message)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RequestDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Room.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sender.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Message)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RequestDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3">
+            <h3 class="text-primary mb-0"><i class="fas fa-envelope-open-text"></i> Danh sách yêu cầu thuê phòng</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Phòng quan tâm</th>
+                            <th>Ngày gửi</th>
+                            <th>Lời nhắn</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @* Lấy thông tin từ object Sender (User) *@
+                                    <div class="fw-bold">@item.Sender?.FullName</div>
+                                    <small class="text-muted">@item.Sender?.PhoneNumber</small>
+                                </td>
+                                <td>
+                                    <a asp-controller="Rooms" asp-action="Details" asp-route-id="@item.RoomId" class="text-decoration-none">
+                                        @item.Room?.Title
+                                    </a>
+                                </td>
+                                @* Dùng RequestDate thay vì CreatedDate *@
+                                <td>@item.RequestDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td><small>@item.Message</small></td>
+                                <td class="text-center">
+                                    @* So sánh với Enum RequestStatus *@
+                                    @if (item.Status == RequestStatus.Pending)
+                                    {
+                                        <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                    }
+                                    else if (item.Status == RequestStatus.Accepted)
+                                    {
+                                        <span class="badge bg-success">Đã chấp nhận</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã từ chối</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (item.Status == RequestStatus.Pending)
+                                    {
+                                        @* Gọi action UpdateStatus với Enum tương ứng *@
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="requestId" value="@item.Id" />
+                                            <input type="hidden" name="status" value="@RequestStatus.Accepted" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Chấp nhận">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="requestId" value="@item.Id" />
+                                            <input type="hidden" name="status" value="@RequestStatus.Rejected" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Từ chối">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form asp-action="HandleRequest" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button name="action" value="Accept" class="btn btn-sm btn-success">Chấp nhận</button>
+                                        <button name="action" value="Reject" class="btn btn-sm btn-danger">Từ chối</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
