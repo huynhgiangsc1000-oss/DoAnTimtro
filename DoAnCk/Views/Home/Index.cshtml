@@ -12,8 +12,8 @@
                     <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
                         <div style="height: 180px; background: #eee;">
                             @{
-                                var imgUrl = item.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl
-                                ?? item.Images?.FirstOrDefault()?.ImageUrl
+                                var imgUrl = item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl
+                                ?? item.RoomImages?.FirstOrDefault()?.ImageUrl
                                 ?? "/images/no-image.jpg";
                             }
                             <img src="@imgUrl" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="@item.Title">

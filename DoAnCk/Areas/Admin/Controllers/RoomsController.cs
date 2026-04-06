@@ -24,7 +24,7 @@ namespace DoAnCk.Areas.Admin.Controllers
             var rooms = await _context.Rooms
                 .Include(r => r.Category)
                 .Include(r => r.User)
-                .Include(r => r.Images)
+                .Include(r => r.RoomImages)
                 .OrderByDescending(r => r.CreatedDate)
                 .ToListAsync();
 

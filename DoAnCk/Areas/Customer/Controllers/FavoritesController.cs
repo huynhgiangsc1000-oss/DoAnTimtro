@@ -28,7 +28,7 @@ namespace DoAnCk.Areas.Customer.Controllers
 
             var favorites = await _context.Favorites
                 .Include(f => f.Room)
-                    .ThenInclude(r => r.Images)
+                    .ThenInclude(r => r.RoomImages)
                 .Include(f => f.User)
                 .Where(f => f.UserId == currentUser.Id)
                 .OrderByDescending(f => f.Id)
@@ -47,7 +47,7 @@ namespace DoAnCk.Areas.Customer.Controllers
 
             var favorite = await _context.Favorites
                 .Include(f => f.Room)
-                    .ThenInclude(r => r.Images)
+                    .ThenInclude(r => r.RoomImages)
                 .Include(f => f.User)
                 .FirstOrDefaultAsync(f => f.Id == id && f.UserId == currentUser.Id);
 
@@ -66,7 +66,7 @@ namespace DoAnCk.Areas.Customer.Controllers
 
             var favorite = await _context.Favorites
                 .Include(f => f.Room)
-                    .ThenInclude(r => r.Images)
+                    .ThenInclude(r => r.RoomImages)
                 .Include(f => f.User)
                 .FirstOrDefaultAsync(f => f.Id == id && f.UserId == currentUser.Id);
 

@@ -17,7 +17,7 @@ namespace DoAnCk.Models.Entities
 
         // Người gửi yêu cầu (Khách thuê)
         [Required]
-        public int SenderId { get; set; }
+        public string SenderId { get; set; }
 
         [ForeignKey("SenderId")]
         public virtual User? Sender { get; set; }

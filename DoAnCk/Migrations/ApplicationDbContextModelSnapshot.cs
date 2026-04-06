@@ -169,6 +169,7 @@ namespace DoAnCk.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsApproved")
@@ -275,11 +276,9 @@ namespace DoAnCk.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RoomId1")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("int");
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -287,8 +286,6 @@ namespace DoAnCk.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
-
-                    b.HasIndex("RoomId1");
 
                     b.HasIndex("SenderId");
 
@@ -481,7 +478,7 @@ namespace DoAnCk.Migrations
                     b.HasOne("DoAnCk.Models.Entities.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DoAnCk.Models.Entities.User", "User")
@@ -566,14 +563,10 @@ namespace DoAnCk.Migrations
             modelBuilder.Entity("DoAnCk.Models.Entities.RoomRequest", b =>
                 {
                     b.HasOne("DoAnCk.Models.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DoAnCk.Models.Entities.Room", null)
                         .WithMany("RoomRequests")
-                        .HasForeignKey("RoomId1");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DoAnCk.Models.Entities.User", "Sender")
                         .WithMany()

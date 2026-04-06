@@ -24,9 +24,9 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center">
-                                        @if (item.Images != null && item.Images.Any())
+                                        @if (item.RoomImages != null && item.RoomImages.Any())
                                         {
-                                            <img src="@item.Images.First().ImageUrl" class="rounded me-3 shadow-sm" style="width: 70px; height: 50px; object-fit: cover;">
+                                            <img src="@item.RoomImages.First().ImageUrl" class="rounded me-3 shadow-sm" style="width: 70px; height: 50px; object-fit: cover;">
                                         }
                                         <div>
                                             <div class="fw-bold text-dark">@item.Title</div>

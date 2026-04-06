@@ -3,8 +3,8 @@
 @{
     ViewData["Title"] = "Bỏ yêu thích";
     var room = Model.Room;
-    var mainImage = room?.Images?.FirstOrDefault(x => x.IsMain)?.ImageUrl
-                 ?? room?.Images?.FirstOrDefault()?.ImageUrl
+    var mainImage = room?.RoomImages?.FirstOrDefault(x => x.IsMain)?.ImageUrl
+                 ?? room?.RoomImages?.FirstOrDefault()?.ImageUrl
                  ?? "https://via.placeholder.com/800x500?text=No+Image";
 }
 

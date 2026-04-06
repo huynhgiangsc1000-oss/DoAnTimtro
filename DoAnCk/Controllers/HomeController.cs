@@ -26,7 +26,7 @@ namespace DoAnCk.Controllers
                 // Lấy danh sách phòng, Include bảng Images để hiển thị ảnh đại diện
                 // Sử dụng .AsNoTracking() để tăng tốc độ load trang cho dữ liệu chỉ đọc
                 var rooms = await _context.Rooms
-                    .Include(r => r.Images)
+                    .Include(r => r.RoomImages)
                     .Include(r => r.Category) // Lấy thông tin danh mục nếu cần hiển thị
                     .OrderByDescending(r => r.CreatedDate)
                     .Take(12) // Giới hạn hiển thị 12 phòng mới nhất
@@ -51,7 +51,7 @@ namespace DoAnCk.Controllers
             }
 
             var room = await _context.Rooms
-                .Include(r => r.Images)
+                .Include(r => r.RoomImages)
                 .Include(r => r.User)
                 .Include(r => r.Category)
                 // SỬA DÒNG NÀY: Thay Amenities bằng RoomAmenities
