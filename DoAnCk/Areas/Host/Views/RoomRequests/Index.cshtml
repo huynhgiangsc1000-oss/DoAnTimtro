@@ -74,6 +74,13 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
+                                <td>
+                                    <form asp-action="HandleRequest" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button name="action" value="Accept" class="btn btn-sm btn-success">Chấp nhận</button>
+                                        <button name="action" value="Reject" class="btn btn-sm btn-danger">Từ chối</button>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>

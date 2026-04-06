@@ -26,7 +26,21 @@ namespace DoAnCk.Models.Entities
         public double Longitude { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+        // --- BỔ SUNG: TRẠNG THÁI CHI TIẾT ---
+        // Thay vì chỉ dùng IsApproved, dùng Status để quản lý: 0: Chờ duyệt, 1: Đang hiển thị, 2: Đã cho thuê
+        public int Status { get; set; } = 0;
+
         public bool IsApproved { get; set; } = false;
+
+        // --- BỔ SUNG: THỐNG KÊ TƯƠNG TÁC ---
+        // Lưu trữ số lượt xem để chủ trọ theo dõi hiệu quả bài đăng
+        public int ViewCount { get; set; } = 0;
+
+        // --- BỔ SUNG: THÔNG TIN LIÊN HỆ NHANH ---
+        // Hỗ trợ tính năng nút gọi và Zalo trên giao diện
+        public string? PhoneNumber { get; set; }
+        public string? ZaloNumber { get; set; }
 
         public int UserId { get; set; }
         [ForeignKey("UserId")]
@@ -36,10 +50,13 @@ namespace DoAnCk.Models.Entities
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; } = null!;
 
-        // --- QUAN TRỌNG: Đã đổi tên thành RoomImages để khớp với logic View của bạn ---
         public virtual ICollection<RoomImage> RoomImages { get; set; } = new List<RoomImage>();
 
         public virtual ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        // --- BỔ SUNG: QUAN HỆ VỚI YÊU CẦU THUÊ ---
+        // Để đếm số thông báo trên Navbar chính xác
+        public virtual ICollection<RoomRequest> RoomRequests { get; set; } = new List<RoomRequest>();
     }
 }

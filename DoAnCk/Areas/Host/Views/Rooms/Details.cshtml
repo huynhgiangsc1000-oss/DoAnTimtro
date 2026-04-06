@@ -1,205 +1,174 @@
 ﻿@model DoAnCk.Models.Entities.Room
 
 <div class="container mt-4 mb-5">
-    <div class="card shadow border-0 overflow-hidden">
-        <div class="card-header bg-info text-white py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Chi tiết bài đăng: @Model.Title</h4>
-            <span class="badge @(Model.IsApproved ? "bg-success" : "bg-warning text-dark") fs-6 shadow-sm">
-                <i class="fas @(Model.IsApproved ? "fa-check-circle" : "fa-clock") me-1"></i>
-                @(Model.IsApproved ? "Đã duyệt" : "Đang chờ duyệt")
-            </span>
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        @* HEADER: Cập nhật Status và ViewCount *@
+        <div class="card-header bg-info text-white py-3 d-flex justify-content-between align-items-center border-0">
+            <div>
+                <h4 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>@Model.Title</h4>
+                <small class="opacity-75"><i class="fas fa-eye me-1"></i> Lượt xem: @Model.ViewCount</small>
+            </div>
+            <div class="d-flex gap-2">
+                @if (Model.Status == 1)
+                {
+                    <span class="badge bg-success shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i> Đang hiển thị</span>
+                }
+                else if (Model.Status == 2)
+                {
+                    <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-door-closed me-1"></i> Đã cho thuê</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i> Chờ duyệt</span>
+                }
+            </div>
         </div>
 
-        <div class="card-body p-4">
+        <div class="card-body p-4 bg-white">
             <div class="row g-4">
                 <div class="col-md-7">
-                    <div class="p-3 bg-light rounded shadow-sm border-start border-info border-4">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-4 text-muted"><i class="fas fa-tag me-2"></i>Giá thuê:</dt>
-                            <dd class="col-sm-8 text-danger fw-bold fs-5">@Model.Price.ToString("N0") VNĐ</dd>
-
-                            <dt class="col-sm-4 text-muted"><i class="fas fa-expand-arrows-alt me-2"></i>Diện tích:</dt>
-                            <dd class="col-sm-8">@Model.Area m²</dd>
-
-                            <dt class="col-sm-4 text-muted"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ:</dt>
-                            <dd class="col-sm-8 text-primary">@Model.Address</dd>
-
-                            <dt class="col-sm-4 text-muted"><i class="fas fa-calendar-alt me-2"></i>Ngày đăng:</dt>
-                            <dd class="col-sm-8">@Model.CreatedDate.ToString("dd/MM/yyyy")</dd>
-
-                            <dt class="col-sm-4 text-muted"><i class="fas fa-layer-group me-2"></i>Loại phòng:</dt>
-                            <dd class="col-sm-8"><span class="badge bg-secondary">@Model.Category?.Name</span></dd>
-                        </dl>
+                    @* Thông tin cơ bản *@
+                    <div class="p-4 bg-light rounded-4 shadow-sm border-start border-info border-5">
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted"><i class="fas fa-tag me-2"></i>Giá thuê:</div>
+                            <div class="col-sm-8 text-danger fw-bold fs-4">@Model.Price.ToString("N0") <small class="fs-6">VNĐ/tháng</small></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted"><i class="fas fa-expand-arrows-alt me-2"></i>Diện tích:</div>
+                            <div class="col-sm-8 fw-bold">@Model.Area m²</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ:</div>
+                            <div class="col-sm-8 text-primary fw-medium">@Model.Address</div>
+                        </div>
                     </div>
 
-                    <h5 class="mt-4 border-bottom pb-2 text-primary fw-bold"><i class="fas fa-concierge-bell me-2"></i>Tiện ích đi kèm</h5>
-                    <div class="row g-2 mb-4">
+                    @* TIỆN ÍCH: Lấy Icon động từ Database *@
+                    <h5 class="mt-5 mb-3 text-dark fw-bold"><i class="fas fa-concierge-bell me-2 text-info"></i>Tiện ích đi kèm</h5>
+                    <div class="row g-3 mb-4">
                         @if (Model.RoomAmenities != null && Model.RoomAmenities.Any())
                         {
                             foreach (var item in Model.RoomAmenities)
                             {
-                                <div class="col-6 col-md-4">
-                                    <div class="d-flex align-items-center p-2 border rounded bg-white shadow-xs">
-                                        <i class="fas fa-check-circle text-success me-2"></i>
-                                        <span class="small fw-medium">@item.Amenity?.Name</span>
+                                <div class="col-6 col-lg-4">
+                                    <div class="d-flex align-items-center p-2 border rounded-3 bg-white shadow-xs hover-info transition-all">
+                                        <i class="@(string.IsNullOrEmpty(item.Amenity?.IconClass) ? "fas fa-check-circle" : item.Amenity.IconClass) text-success me-2"></i>
+                                        <span class="small fw-bold text-secondary">@item.Amenity?.Name</span>
                                     </div>
                                 </div>
                             }
                         }
                         else
                         {
-                            <div class="col-12"><p class="text-muted small italic">Chưa cập nhật tiện ích.</p></div>
+                            <div class="col-12"><p class="text-muted small fst-italic">Chưa cập nhật tiện ích.</p></div>
                         }
                     </div>
 
-                    <h5 class="mt-4 border-bottom pb-2 text-primary fw-bold"><i class="fas fa-align-left me-2"></i>Mô tả chi tiết</h5>
-                    <p class="text-muted text-justify p-3 bg-white rounded border" style="white-space: pre-line; line-height: 1.6;">@Model.Description</p>
+                    @* Mô tả *@
+                    <h5 class="mt-4 mb-3 text-dark fw-bold"><i class="fas fa-align-left me-2 text-info"></i>Mô tả chi tiết</h5>
+                    <div class="text-secondary p-3 bg-light rounded-3 border" style="white-space: pre-line; line-height: 1.8;">
+                        @Model.Description
+                    </div>
 
-                    <h5 class="mt-4 border-bottom pb-2 text-primary fw-bold"><i class="fas fa-map-marked-alt me-2"></i>Vị trí thực tế</h5>
-                    @if (Model.Latitude != 0 && Model.Longitude != 0)
-                    {
-                        <div class="ratio ratio-16x9 shadow-sm rounded border overflow-hidden mt-2">
-                            <iframe src="https://maps.google.com/maps?q=@Model.Latitude,@Model.Longitude&z=15&output=embed"
-                                    frameborder="0" style="border:0;" allowfullscreen>
+                    @* BẢN ĐỒ: Hoàn chỉnh với dữ liệu động *@
+                    <h5 class="mt-5 mb-3 text-dark fw-bold"><i class="fas fa-map-marked-alt me-2 text-info"></i>Vị trí thực tế</h5>
+                    <div class="shadow rounded-4 overflow-hidden border">
+                        @{
+                            // Mã hóa địa chỉ để truyền vào URL của Google Maps
+                            var encodedLoc = System.Net.WebUtility.UrlEncode(Model.Address);
+                            var mapSrc = $"https://maps.google.com/maps?q={encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed";
+                        }
+                        <div class="ratio ratio-16x9">
+                            <iframe src="@mapSrc"
+                                    frameborder="0"
+                                    style="border:0;"
+                                    allowfullscreen
+                                    loading="lazy">
                             </iframe>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-secondary small mt-2">
-                            <i class="fas fa-info-circle me-2"></i>Tọa độ GPS chưa được cung cấp.
+                        <div class="bg-light p-2 text-center border-top">
+                            <a href="https://www.google.com/maps/search/?api=1&query=@encodedLoc" target="_blank" class="btn btn-sm btn-link text-decoration-none fw-bold">
+                                <i class="fas fa-external-link-alt me-1"></i> Xem trên Google Maps
+                            </a>
                         </div>
-                    }
+                    </div>
                 </div>
 
                 <div class="col-md-5">
-                    <h5 class="mb-3 text-primary fw-bold"><i class="fas fa-images me-2"></i>Hình ảnh thực tế</h5>
-
+                    @* Carousel ảnh *@
+                    <h5 class="mb-3 text-dark fw-bold"><i class="fas fa-images me-2 text-info"></i>Hình ảnh thực tế</h5>
                     @if (Model.RoomImages != null && Model.RoomImages.Any())
                     {
-                        <div id="roomImagesCarousel" class="carousel slide shadow rounded-3 overflow-hidden border" data-bs-ride="carousel">
-                            <div class="carousel-indicators">
+                        <div id="roomImagesCarousel" class="carousel slide shadow-sm rounded-4 overflow-hidden border" data-bs-ride="carousel">
+                            <div class="carousel-inner">
                                 @for (int i = 0; i < Model.RoomImages.Count(); i++)
                                 {
-                                    <button type="button" data-bs-target="#roomImagesCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></button>
-                                }
-                            </div>
-
-                            <div class="carousel-inner">
-                                @{
-                                    var isFirst = true;
-                                }
-                                @foreach (var img in Model.RoomImages)
-                                {
-                                    <div class="carousel-item @(isFirst ? "active" : "")">
+                                    var img = Model.RoomImages.ElementAt(i);
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
                                         <img src="@img.ImageUrl" class="d-block w-100" style="height: 350px; object-fit: cover;" alt="Room Image">
-                                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 py-1 rounded">
-                                            <p class="small mb-0">Ảnh thực tế tại phòng</p>
-                                        </div>
                                     </div>
-                                    isFirst = false;
                                 }
                             </div>
-
                             <button class="carousel-control-prev" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon shadow-sm" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
+                                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
                             </button>
                             <button class="carousel-control-next" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon shadow-sm" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
+                                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
                             </button>
                         </div>
-
-                        <div class="d-flex gap-2 mt-2 overflow-auto pb-2 scrollbar-hidden">
-                            @foreach (var img in Model.RoomImages)
-                            {
-                                var index = Model.RoomImages.ToList().IndexOf(img);
-                                <img src="@img.ImageUrl" class="rounded border shadow-xs img-thumbnail-nav"
-                                     style="width: 70px; height: 50px; object-fit: cover; cursor: pointer;"
-                                     onclick="changeSlide(@index)">
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-5 border rounded bg-light shadow-sm">
-                            <i class="fas fa-camera fa-3x text-secondary mb-3"></i>
-                            <p class="text-muted mb-0">Chủ trọ chưa tải ảnh lên.</p>
-                        </div>
                     }
 
-                    @if (Model.User != null)
-                    {
-                        <div class="card mt-4 border-info shadow-sm bg-info bg-opacity-10 border-start border-4">
-                            <div class="card-body">
-                                <h6 class="card-title fw-bold text-info"><i class="fas fa-user-circle me-2"></i>Thông tin chủ trọ</h6>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-bold">@Model.User.FullName</p>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-phone me-1"></i> @Model.User.PhoneNumber</p>
-                                    </div>
-                                    <a href="tel:@Model.User.PhoneNumber" class="btn btn-sm btn-info text-white rounded-circle shadow-sm">
-                                        <i class="fas fa-phone-alt"></i>
-                                    </a>
-                                </div>
+                    @* Thông tin chủ trọ & Nút hành động nhanh *@
+                    <div class="card mt-4 border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-body p-4 text-center bg-light">
+                            <img src="https://ui-avatars.com/api/?name=@(System.Net.WebUtility.UrlEncode(Model.User?.FullName))&background=0dcaf0&color=fff" class="rounded-circle shadow-sm mb-3" width="70">
+                            <h6 class="fw-bold">@Model.User?.FullName</h6>
+
+                            <div class="d-grid gap-2 mt-3">
+                                @if (Model.Status == 1)
+                                {
+                                    <form asp-action="ToggleStatus" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <input type="hidden" name="status" value="2" />
+                                        <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold shadow-sm">
+                                            <i class="fas fa-door-closed me-2"></i>Đánh dấu Đã cho thuê
+                                        </button>
+                                    </form>
+                                }
+                                <a href="tel:@Model.PhoneNumber" class="btn btn-outline-info rounded-pill fw-bold border-2 shadow-sm">
+                                    <i class="fas fa-phone-alt me-2"></i>@Model.PhoneNumber
+                                </a>
                             </div>
                         </div>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card-footer bg-light py-3 d-flex gap-2 border-top">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning px-4 shadow-sm fw-bold">
-                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+        @* FOOTER NÚT ĐIỀU HƯỚNG *@
+        <div class="card-footer bg-white py-4 d-flex justify-content-center gap-3 border-top">
+            <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-bold">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
             </a>
-            <a asp-action="Index" class="btn btn-outline-secondary px-4 shadow-sm">
-                <i class="fas fa-arrow-left me-2"></i>Danh sách
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning px-4 py-2 rounded-pill fw-bold shadow-sm">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
             </a>
         </div>
     </div>
 </div>
 
-<script>
-    // Hàm bổ trợ để chuyển slide khi click vào ảnh nhỏ
-    function changeSlide(index) {
-        var myCarousel = document.querySelector('#roomImagesCarousel');
-        var carousel = bootstrap.Carousel.getOrCreateInstance(myCarousel);
-        carousel.to(index);
-    }
-</script>
-
 <style>
-    /* CSS Tối ưu thêm */
-    .carousel {
-        border-radius: 12px;
+    .transition-all {
+        transition: all 0.3s ease;
     }
 
-    .carousel-control-prev-icon, .carousel-control-next-icon {
-        background-color: rgba(0,0,0,0.5);
-        border-radius: 50%;
-        padding: 20px;
-        background-size: 50%;
-    }
-
-    .img-thumbnail-nav:hover {
+    .hover-info:hover {
         border-color: #0dcaf0 !important;
-        transform: scale(1.05);
-        transition: 0.2s;
+        transform: translateY(-2px);
+        background-color: #f0faff !important;
     }
 
     .shadow-xs {
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
-        transition: 0.2s ease-in-out;
-    }
-
-        .shadow-xs:hover {
-            background-color: #f8f9fa !important;
-            transform: translateY(-2px);
-        }
-
-    .scrollbar-hidden::-webkit-scrollbar {
-        display: none; /* Ẩn thanh cuộn của thumbnail */
+        shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
     }
 </style>

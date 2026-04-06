@@ -18,16 +18,12 @@ namespace DoAnCk.Areas.Host.Controllers
             _context = context;
         }
 
-        // Helper lấy ID người dùng hiện tại
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return userIdClaim != null ? int.Parse(userIdClaim) : 0;
         }
 
-        // ==========================================
-        // 1. DANH SÁCH YÊU CẦU (INDEX)
-        // ==========================================
         public async Task<IActionResult> Index()
         {
             int userId = GetCurrentUserId();
@@ -35,102 +31,14 @@ namespace DoAnCk.Areas.Host.Controllers
             var requests = await _context.RoomRequests
                 .Include(r => r.Room)
                 .Include(r => r.Sender)
-                .Where(r => r.Room.UserId == userId)
+                .Where(r => r.Room != null && r.Room.UserId == userId) // Kiểm tra null cho Room
                 .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();
 
+            ViewBag.PendingCount = requests.Count(r => r.Status == RequestStatus.Pending);
             return View(requests);
         }
 
-        // ==========================================
-        // 2. TẠO MỚI (CREATE) - Thường gọi từ phía khách
-        // ==========================================
-        // Lưu ý: Nếu khách hàng vãng lai gửi yêu cầu, 
-        // Action này có thể cần đặt ở một Controller công khai thay vì trong Area Host.
-        [HttpGet]
-        public IActionResult Create(int roomId)
-        {
-            var room = _context.Rooms.Find(roomId);
-            if (room == null) return NotFound();
-
-            ViewBag.RoomTitle = room.Title;
-            return View(new RoomRequest { RoomId = roomId });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RoomRequest request)
-        {
-            // Thiết lập mặc định cho yêu cầu mới
-            request.RequestDate = DateTime.Now;
-            request.Status = RequestStatus.Pending;
-            request.SenderId = GetCurrentUserId();
-
-            // Xóa bỏ kiểm tra validation cho các object liên kết để tránh lỗi ModelState
-            ModelState.Remove("Room");
-            ModelState.Remove("Sender");
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(request);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Rooms", new { id = request.RoomId, area = "" });
-            }
-            return View(request);
-        }
-
-        // ==========================================
-        // 3. CHỈNH SỬA (EDIT) - Chủ trọ cập nhật ghi chú/trạng thái
-        // ==========================================
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var request = await _context.RoomRequests
-                .Include(r => r.Sender)
-                .Include(r => r.Room)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (request == null || request.Room.UserId != GetCurrentUserId())
-            {
-                return NotFound();
-            }
-            return View(request);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, RoomRequest roomRequest)
-        {
-            if (id != roomRequest.Id) return NotFound();
-
-            // Kiểm tra lại quyền sở hữu phòng trước khi lưu
-            var existingRequest = await _context.RoomRequests
-                .Include(r => r.Room)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (existingRequest == null || existingRequest.Room.UserId != GetCurrentUserId())
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                _context.Update(roomRequest);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.RoomRequests.Any(e => e.Id == roomRequest.Id)) return NotFound();
-                else throw;
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ==========================================
-        // 4. CHI TIẾT (DETAILS)
-        // ==========================================
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -140,7 +48,8 @@ namespace DoAnCk.Areas.Host.Controllers
                 .Include(r => r.Sender)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (request == null || request.Room.UserId != GetCurrentUserId())
+            // Kiểm tra null an toàn (Fix lỗi Dereference)
+            if (request == null || request.Room == null || request.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
@@ -148,45 +57,71 @@ namespace DoAnCk.Areas.Host.Controllers
             return View(request);
         }
 
-        // ==========================================
-        // 5. CẬP NHẬT NHANH TRẠNG THÁI (POST)
-        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int requestId, RequestStatus status)
+        public async Task<IActionResult> UpdateStatus(int id, RequestStatus status)
         {
             var request = await _context.RoomRequests
                 .Include(r => r.Room)
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (request != null && request.Room.UserId == GetCurrentUserId())
+            if (request == null || request.Room == null || request.Room.UserId != GetCurrentUserId())
+            {
+                return NotFound();
+            }
+
+            try
             {
                 request.Status = status;
+
+                // Sửa Approved thành Accepted để khớp với Enum
+                if (status == RequestStatus.Accepted)
+                {
+                    // Logic: request.Room.IsAvailable = false;
+                }
+
                 _context.Update(request);
                 await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Đã {(status == RequestStatus.Accepted ? "chấp nhận" : "từ chối")} yêu cầu.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Có lỗi xảy ra.";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // ==========================================
-        // 6. XÓA (DELETE)
-        // ==========================================
-        public async Task<IActionResult> Delete(int? id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Status,Note")] RoomRequest roomRequest)
         {
-            if (id == null) return NotFound();
+            if (id != roomRequest.Id) return NotFound();
 
-            var request = await _context.RoomRequests
+            var existingRequest = await _context.RoomRequests
                 .Include(r => r.Room)
-                .Include(r => r.Sender)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (request == null || request.Room.UserId != GetCurrentUserId())
+            if (existingRequest == null || existingRequest.Room == null || existingRequest.Room.UserId != GetCurrentUserId())
             {
                 return NotFound();
             }
 
-            return View(request);
+            try
+            {
+                existingRequest.Status = roomRequest.Status;
+                existingRequest.Note = roomRequest.Note;
+
+                _context.Update(existingRequest);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.RoomRequests.Any(e => e.Id == roomRequest.Id)) return NotFound();
+                else throw;
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -197,10 +132,11 @@ namespace DoAnCk.Areas.Host.Controllers
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (request != null && request.Room.UserId == GetCurrentUserId())
+            if (request != null && request.Room != null && request.Room.UserId == GetCurrentUserId())
             {
                 _context.RoomRequests.Remove(request);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa yêu cầu.";
             }
 
             return RedirectToAction(nameof(Index));

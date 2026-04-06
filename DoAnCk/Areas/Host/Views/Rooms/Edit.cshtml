@@ -1,91 +1,117 @@
 ﻿@model DoAnCk.Models.Entities.Room
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="card shadow border-warning">
-        <div class="card-header bg-warning text-dark py-3">
+        <div class="card-header bg-warning text-dark py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa thông tin phòng</h4>
+            <span class="badge bg-dark">Mã phòng: #@Model.Id</span>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <form asp-action="Edit" enctype="multipart/form-data" method="post">
-                @* Các trường ẩn để giữ nguyên dữ liệu cũ không đổi *@
+                @* Hiển thị danh sách lỗi tổng quát nếu có *@
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm" role="alert"></div>
+
+                @* Các trường ẩn để bảo toàn dữ liệu hệ thống *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="UserId" />
                 <input type="hidden" asp-for="CreatedDate" />
                 <input type="hidden" asp-for="IsApproved" />
 
                 <div class="row">
-                    <div class="col-md-7">
+                    @* CỘT TRÁI: Thông tin chính *@
+                    <div class="col-lg-7">
                         <div class="mb-3">
-                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề bài đăng</label>
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
+                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề bài đăng <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control form-control-lg" placeholder="Ví dụ: Phòng trọ giá rẻ gần ĐH Bách Khoa..." />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Address" class="form-label fw-bold">Địa chỉ chính xác</label>
-                            <input asp-for="Address" class="form-control" />
-                            <span asp-validation-for="Address" class="text-danger"></span>
+                            <label asp-for="Address" class="form-label fw-bold">Địa chỉ chính xác <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <input asp-for="Address" class="form-control" placeholder="Số nhà, tên đường, phường/xã..." />
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label fw-bold">Nội dung mô tả</label>
-                            <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Mô tả chi tiết về tiện nghi, an ninh, quy định..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
                     </div>
 
-                    <div class="col-md-5">
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label asp-for="Price" class="form-label fw-bold">Giá thuê (VNĐ)</label>
-                                <input asp-for="Price" class="form-control" />
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label asp-for="Area" class="form-label fw-bold">Diện tích (m²)</label>
-                                <input asp-for="Area" class="form-control" />
-                            </div>
-                        </div>
+                    @* CỘT PHẢI: Thông số & Hình ảnh *@
+                    <div class="col-lg-5">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label asp-for="Price" class="form-label fw-bold">Giá thuê (VNĐ)</label>
+                                        <input asp-for="Price" class="form-control text-primary fw-bold" type="number" />
+                                        <span asp-validation-for="Price" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label asp-for="Area" class="form-label fw-bold">Diện tích (m²)</label>
+                                        <input asp-for="Area" class="form-control" type="number" step="0.1" />
+                                        <span asp-validation-for="Area" class="text-danger small"></span>
+                                    </div>
+                                </div>
 
-                        <div class="mb-3">
-                            <label asp-for="CategoryId" class="form-label fw-bold">Loại phòng</label>
-                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                                <div class="mb-0">
+                                    <label asp-for="CategoryId" class="form-label fw-bold">Loại phòng</label>
+                                    <select asp-for="CategoryId" class="form-select border-primary" asp-items="ViewBag.CategoryId"></select>
+                                </div>
+                            </div>
                         </div>
 
                         <hr />
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ảnh hiện tại</label>
-                            <div class="row g-2 mb-2">
+                        @* PHẦN QUẢN LÝ ẢNH *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="fas fa-images"></i> Ảnh hiện tại</label>
+                            <div class="row g-2 mb-2 p-2 border rounded bg-white" style="max-height: 200px; overflow-y: auto;">
                                 @if (Model.RoomImages != null && Model.RoomImages.Any())
                                 {
                                     foreach (var img in Model.RoomImages)
                                     {
-                                        <div class="col-4 position-relative">
-                                            <img src="@img.ImageUrl" class="img-thumbnail w-100" style="height: 80px; object-fit: cover;" />
+                                        <div class="col-4">
+                                            <div class="position-relative group-image">
+                                                <img src="@img.ImageUrl" class="img-thumbnail w-100 shadow-sm" style="height: 80px; object-fit: cover;" />
+                                                @* Thêm nút xóa ảnh nếu bạn có làm API xóa từng ảnh *@
+                                            </div>
                                         </div>
                                     }
                                 }
                                 else
                                 {
-                                    <p class="text-muted small italic ps-2">Chưa có ảnh nào.</p>
+                                    <div class="col-12 text-center py-3">
+                                        <p class="text-muted small mb-0"><i class="fas fa-camera-retro"></i> Chưa có ảnh nào được tải lên.</p>
+                                    </div>
                                 }
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Tải lên ảnh mới</label>
-                            <input type="file" name="newImages" class="form-control" multiple accept="image/*" />
-                            <small class="text-muted">Lưu ý: Ảnh mới sẽ được thêm vào danh sách hiện có.</small>
+                            <label class="form-label fw-bold text-primary"><i class="fas fa-cloud-upload-alt"></i> Tải lên ảnh mới</label>
+                            <input type="file" name="newImages" id="fileInput" class="form-control" multiple accept="image/*" />
+                            <div id="preview" class="row g-2 mt-2"></div> @* Nơi hiển thị ảnh preview trước khi lưu *@
+                            <small class="text-muted d-block mt-2 italic">Dung lượng tối đa 2MB/ảnh. Định dạng: JPG, PNG.</small>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-top d-flex gap-2">
-                    <button type="submit" class="btn btn-success px-5 shadow-sm">
-                        <i class="fas fa-save"></i> Lưu thay đổi
-                    </button>
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                        Hủy bỏ
+                        <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
+                    <div class="d-flex gap-2">
+                        <button type="reset" class="btn btn-light border">Làm mới</button>
+                        <button type="submit" class="btn btn-success px-5 shadow">
+                            <i class="fas fa-save"></i> Cập nhật ngay
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -96,4 +122,31 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // Script xem trước ảnh khi chọn file
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            const files = event.target.files;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'col-3';
+                    div.innerHTML = `
+                        <div class="position-relative">
+                            <img src="${e.target.result}" class="img-thumbnail" style="height: 60px; width: 100%; object-fit: cover;">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="cursor:pointer">x</span>
+                        </div>
+                    `;
+                    preview.appendChild(div);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 }

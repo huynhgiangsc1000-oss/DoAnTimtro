@@ -1,0 +1,94 @@
+﻿@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
+
+@{
+    ViewData["Title"] = "Danh sách yêu cầu thuê phòng";
+    Layout = "_LayoutHost";
+}
+
+<div class="container-fluid px-4 mt-4">
+    @* SỬA LỖI CSS: Thay vì dùng style "shadow", ta dùng class của Bootstrap *@
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-envelope-open-text me-2"></i>Yêu cầu thuê phòng</h5>
+            <span class="badge bg-info text-dark">Tổng cộng: @(Model?.Count() ?? 0)</span>
+        </div>
+        <div class="card-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Phòng</th>
+                            <th>Người gửi (ID)</th>
+                            <th>Nội dung / Ghi chú</th>
+                            <th>Ngày gửi</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Chưa có yêu cầu thuê nào.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-dark">@item.Room?.Title</span>
+                                        <br />
+                                        <small class="text-muted">ID Phòng: #@item.RoomId</small>
+                                    </td>
+                                    @* FIX LỖI: Dùng SenderId vì DB của bạn không có SenderName *@
+                                    <td>
+                                        ID Người gửi: @item.SenderId
+                                    </td>
+                                    <td>
+                                        <div class="small text-muted">@item.Message</div>
+                                        @if (!string.IsNullOrEmpty(item.Note))
+                                        {
+                                            <div class="small text-danger italic">Note: @item.Note</div>
+                                        }
+                                    </td>
+                                    <td>@item.RequestDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @* Ép kiểu Enum nếu cần, hoặc so sánh trực tiếp số nguyên *@
+                                        @if ((int)item.Status == 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                        }
+                                        else if ((int)item.Status == 1)
+                                        {
+                                            <span class="badge bg-success">Chấp nhận</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if ((int)item.Status == 0)
+                                        {
+                                            <form asp-action="AcceptRequest" asp-route-id="@item.Id" method="post"
+                                                  onsubmit="return confirm('Xác nhận cho thuê?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -41,23 +41,39 @@
                                     </ul>
                                 </li>
                             }
-
-                            @* MENU CHO CHỦ TRỌ (HOST) *@
+                            @* MENU CHO CHỦ TRỌ (HOST) - ĐÃ HOÀN CHỈNH *@
                             @if (User.IsInRole("Host"))
                             {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-primary" href="#" id="hostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Khu vực Chủ trọ
+                                <li class="nav-item me-2">
+                                    <a class="btn btn-info btn-sm text-white rounded-pill px-3 shadow-sm fw-bold transition-all"
+                                       asp-area="Host" asp-controller="Rooms" asp-action="Create">
+                                        <i class="fas fa-plus-circle me-1"></i> Đăng tin
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="hostDropdown">
-                                        <a class="dropdown-item" asp-area="Host" asp-controller="Rooms" asp-action="Create">Đăng tin mới</a>
+                                </li>
 
-                                        <a class="dropdown-item" asp-area="Host" asp-controller="Rooms" asp-action="Index">Danh sách phòng của tôi</a>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-medium px-3" asp-area="Host" asp-controller="Rooms" asp-action="Index">
+                                        <i class="fas fa-home me-1 text-primary"></i>
+                                        <span class="d-none d-xl-inline">Phòng của tôi</span>
+                                    </a>
+                                </li>
 
-                                        <a class="dropdown-item" asp-area="Host" asp-controller="RoomRequests" asp-action="Index">Yêu cầu thuê/ở ghép</a>
-                                    </ul>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-medium px-3 position-relative" asp-area="Host" asp-controller="RoomRequests" asp-action="Index">
+                                        <i class="fas fa-envelope-open-text me-1 text-warning"></i>
+                                        <span class="d-none d-xl-inline">Yêu cầu</span>
+
+                                        @* Giả sử bạn truyền số lượng qua ViewBag.PendingRequests *@
+                                        @if (ViewBag.PendingRequests > 0)
+                                        {
+                                            <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                                                @ViewBag.PendingRequests
+                                            </span>
+                                        }
+                                    </a>
                                 </li>
                             }
+                            
 
                             @* MENU CHO NGƯỜI THUÊ (MEMBER/CUSTOMER) *@
                             @if (User.IsInRole("Member"))

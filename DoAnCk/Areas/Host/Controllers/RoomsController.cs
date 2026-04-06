@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DoAnCk.Data;
+﻿using DoAnCk.Data;
 using DoAnCk.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace DoAnCk.Areas.Host.Controllers
@@ -21,27 +21,32 @@ namespace DoAnCk.Areas.Host.Controllers
             _hostEnvironment = hostEnvironment;
         }
 
-        // Helper lấy UserId của người đang đăng nhập
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return userIdClaim != null ? int.Parse(userIdClaim) : 0;
         }
 
-        // GET: Host/Rooms
-        public async Task<IActionResult> Index()
+        // --- DANH SÁCH & CHI TIẾT ---
+
+        public async Task<IActionResult> Index(int? status)
         {
             int userId = GetCurrentUserId();
-            var rooms = await _context.Rooms
+            var query = _context.Rooms
                 .Include(r => r.Category)
-                .Include(r => r.RoomImages) // Thêm cái này để hiện ảnh thumbnail ở Index
-                .Where(r => r.UserId == userId)
-                .ToListAsync();
+                .Include(r => r.RoomImages)
+                .Where(r => r.UserId == userId);
 
+            if (status.HasValue)
+            {
+                query = query.Where(r => r.Status == status.Value);
+                ViewBag.CurrentStatus = status.Value;
+            }
+
+            var rooms = await query.OrderByDescending(r => r.CreatedDate).ToListAsync();
             return View(rooms);
         }
 
-        // GET: Host/Rooms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -53,34 +58,35 @@ namespace DoAnCk.Areas.Host.Controllers
                 .Include(r => r.RoomAmenities).ThenInclude(ra => ra.Amenity)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            // Kiểm tra: Nếu phòng không tồn tại hoặc không phải của chủ này
             if (room == null || room.UserId != GetCurrentUserId()) return NotFound();
 
             return View(room);
         }
 
-        // GET: Host/Rooms/Create
+        // --- THÊM MỚI (CREATE) ---
+
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
 
-        // POST: Host/Rooms/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Room room, List<IFormFile> images)
         {
-            room.UserId = GetCurrentUserId();
-            room.CreatedDate = DateTime.Now;
-            room.IsApproved = false;
-
+            // Loại bỏ kiểm tra xác thực cho các object liên quan để tránh lỗi IsValid = false
             ModelState.Remove("User");
             ModelState.Remove("Category");
-            ModelState.Remove("UserId");
+            ModelState.Remove("RoomImages");
+            ModelState.Remove("RoomAmenities");
 
             if (ModelState.IsValid)
             {
+                room.UserId = GetCurrentUserId();
+                room.CreatedDate = DateTime.Now;
+                room.Status = 0;
+
                 _context.Add(room);
                 await _context.SaveChangesAsync();
 
@@ -88,14 +94,16 @@ namespace DoAnCk.Areas.Host.Controllers
                 {
                     await SaveImages(room.Id, images);
                 }
+
+                TempData["Success"] = "Đã thêm phòng thành công!";
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
             return View(room);
         }
 
-        // GET: Host/Rooms/Edit/5
+        // --- CHỈNH SỬA (EDIT) ---
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -106,109 +114,171 @@ namespace DoAnCk.Areas.Host.Controllers
 
             if (room == null || room.UserId != GetCurrentUserId()) return NotFound();
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
             return View(room);
         }
 
-        // POST: Host/Rooms/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Room room, List<IFormFile> newImages)
         {
             if (id != room.Id) return NotFound();
 
-            // Bảo mật: Đảm bảo người dùng không đổi UserId qua Tool F12
-            if (room.UserId != GetCurrentUserId()) return Forbid();
+            // Lấy dữ liệu gốc từ DB để so sánh và bảo mật (dùng AsNoTracking để tránh xung đột bản ghi)
+            var existingRoom = await _context.Rooms.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
+            if (existingRoom == null || existingRoom.UserId != GetCurrentUserId()) return Forbid();
 
+            // QUAN TRỌNG: Loại bỏ các lỗi xác thực không cần thiết gửi từ Form
             ModelState.Remove("User");
             ModelState.Remove("Category");
+            ModelState.Remove("RoomImages");
+            ModelState.Remove("RoomAmenities");
+            ModelState.Remove("newImages");
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Đảm bảo các thông tin hệ thống không bị ghi đè bởi dữ liệu rác từ View
+                    room.UserId = existingRoom.UserId;
+                    room.CreatedDate = existingRoom.CreatedDate;
+                    room.IsApproved = existingRoom.IsApproved; // Giữ nguyên trạng thái duyệt
+
                     _context.Update(room);
                     await _context.SaveChangesAsync();
 
+                    // Lưu thêm ảnh mới nếu có
                     if (newImages != null && newImages.Count > 0)
                     {
                         await SaveImages(room.Id, newImages);
                     }
+
+                    TempData["Success"] = "Cập nhật thông tin thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Rooms.Any(e => e.Id == room.Id)) return NotFound();
+                    if (!RoomExists(room.Id)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
+
+            // Nếu có lỗi xác thực, quay lại trang Edit và nạp lại DropdownList
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", room.CategoryId);
             return View(room);
         }
 
-        // GET: Host/Rooms/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // --- QUẢN LÝ YÊU CẦU THUÊ ---
+
+        public async Task<IActionResult> Requests()
         {
-            if (id == null) return NotFound();
+            int userId = GetCurrentUserId();
 
-            var room = await _context.Rooms
-                .Include(r => r.Category)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var requests = await _context.RoomRequests
+                .Include(r => r.Room)
+                .Where(r => r.Room != null && r.Room.UserId == userId)
+                .OrderByDescending(r => r.RequestDate)
+                .ToListAsync();
 
-            if (room == null || room.UserId != GetCurrentUserId()) return NotFound();
-
-            return View(room);
+            return View(requests);
         }
 
-        // POST: Host/Rooms/Delete/5
-        [HttpPost, ActionName("DeleteConfirmed")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> AcceptRequest(int id)
         {
-            var room = await _context.Rooms
-                .Include(r => r.RoomImages)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            var request = await _context.RoomRequests
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
+            if (request != null && request.Room != null && request.Room.UserId == GetCurrentUserId())
+            {
+                request.Status = (RequestStatus)1;
+                request.Room.Status = 2; // Đánh dấu phòng đã cho thuê
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Xác nhận cho thuê thành công!";
+            }
+            return RedirectToAction(nameof(Requests));
+        }
+
+        // --- TRẠNG THÁI & XÓA ---
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(int id, int status)
+        {
+            var room = await _context.Rooms.FindAsync(id);
             if (room != null && room.UserId == GetCurrentUserId())
             {
-                // Xóa file ảnh vật lý trên ổ cứng trước khi xóa bản ghi
-                foreach (var img in room.RoomImages)
-                {
-                    var oldPath = Path.Combine(_hostEnvironment.WebRootPath, img.ImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
-                }
-
-                _context.Rooms.Remove(room);
+                room.Status = status;
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
 
-        // Private Method để tái sử dụng việc lưu ảnh
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var room = await _context.Rooms
+                .Include(r => r.RoomImages)
+                .Include(r => r.RoomRequests)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (room != null && room.UserId == GetCurrentUserId())
+            {
+                // Xóa file ảnh vật lý trên server
+                if (room.RoomImages != null)
+                {
+                    foreach (var img in room.RoomImages)
+                    {
+                        var oldPath = Path.Combine(_hostEnvironment.WebRootPath, img.ImageUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                    }
+                }
+
+                _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa phòng thành công!";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // --- HELPER METHODS ---
+
         private async Task SaveImages(int roomId, List<IFormFile> images)
         {
-            string wwwRootPath = _hostEnvironment.WebRootPath;
-            string uploadDir = Path.Combine(wwwRootPath, "images", "rooms");
+            // Đường dẫn: wwwroot/images/rooms/
+            string uploadDir = Path.Combine(_hostEnvironment.WebRootPath, "images", "rooms");
             if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
 
             foreach (var file in images)
             {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string path = Path.Combine(uploadDir, fileName);
-
-                using (var fileStream = new FileStream(path, FileMode.Create))
+                if (file.Length > 0)
                 {
-                    await file.CopyToAsync(fileStream);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string path = Path.Combine(uploadDir, fileName);
+
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    _context.RoomImages.Add(new RoomImage
+                    {
+                        RoomId = roomId,
+                        ImageUrl = "/images/rooms/" + fileName,
+                        IsMain = false
+                    });
                 }
-
-                _context.RoomImages.Add(new RoomImage
-                {
-                    RoomId = roomId,
-                    ImageUrl = "/images/rooms/" + fileName,
-                    IsMain = false // Cường có thể tùy chỉnh logic ảnh chính ở đây
-                });
             }
             await _context.SaveChangesAsync();
+        }
+
+        private bool RoomExists(int id)
+        {
+            return _context.Rooms.Any(e => e.Id == id);
         }
     }
 }
