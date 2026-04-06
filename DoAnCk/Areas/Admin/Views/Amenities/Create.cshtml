@@ -1,38 +1,29 @@
 ﻿@model DoAnCk.Models.Entities.Amenity
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>Amenity</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Thêm tiện ích mới</h5>
             </div>
-            <div class="form-group">
-                <label asp-for="IconClass" class="control-label"></label>
-                <input asp-for="IconClass" class="form-control" />
-                <span asp-validation-for="IconClass" class="text-danger"></span>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Tên tiện ích</label>
+                        <input asp-for="Name" class="form-control" placeholder="Ví dụ: Máy giặt, Wifi..." />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="IconClass" class="form-label">Lớp Icon (Bootstrap Icons hoặc FontAwesome)</label>
+                        <input asp-for="IconClass" class="form-control" placeholder="Ví dụ: bi bi-wifi" />
+                        <div class="form-text">Bạn có thể lấy mã tại <a href="https://icons.getbootstrap.com/" target="_blank">Bootstrap Icons</a></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Lưu lại</button>
+                        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
