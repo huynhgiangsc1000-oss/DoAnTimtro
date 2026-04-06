@@ -1,82 +1,128 @@
 ﻿@model DoAnCk.Models.Entities.Room
 
-@{
-    ViewData["Title"] = "Create";
-    Layout = "RoomController";
-}
+<div class="container mt-4 mb-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Đăng tin cho thuê mới</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h1>Create</h1>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề tin bài</label>
+                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Phòng trọ giá rẻ gần ĐH Công nghệ..." />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
 
-<h4>Room</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Area" class="control-label"></label>
-                <input asp-for="Area" class="form-control" />
-                <span asp-validation-for="Area" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Latitude" class="control-label"></label>
-                <input asp-for="Latitude" class="form-control" />
-                <span asp-validation-for="Latitude" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Longitude" class="control-label"></label>
-                <input asp-for="Longitude" class="form-control" />
-                <span asp-validation-for="Longitude" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsApproved" /> @Html.DisplayNameFor(model => model.IsApproved)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                        <div class="form-group mb-3">
+                            <label asp-for="Address" class="form-label fw-bold">Địa chỉ chính xác</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                <input asp-for="Address" class="form-control" placeholder="Số nhà, tên đường, Phường, Quận..." />
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết</label>
+                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Nêu rõ các tiện ích, giờ giấc, nội quy..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ảnh đã chọn:</label>
+                            <div id="imagePreview" class="row g-2">
+                                <div class="col-12">
+                                    <p class="text-muted small italic">Chưa có ảnh nào được chọn.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label fw-bold">Giá thuê (VNĐ/tháng)</label>
+                                    <input asp-for="Price" type="number" class="form-control fw-bold text-danger" placeholder="0" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Area" class="form-label fw-bold">Diện tích (m²)</label>
+                                    <input asp-for="Area" type="number" class="form-control" placeholder="0" />
+                                    <span asp-validation-for="Area" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="CategoryId" class="form-label fw-bold">Loại phòng</label>
+                                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                                        <option value="">-- Chọn loại hình --</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Hình ảnh phòng</label>
+                                    <input type="file" name="images" id="imageInput" class="form-control" multiple accept="image/*" />
+                                    <small class="text-muted"><i class="fas fa-info-circle"></i> Nên chọn ít nhất 3 ảnh rõ nét.</small>
+                                </div>
+
+                                <hr />
+                                <p class="small text-muted"><i class="fas fa-shield-alt"></i> Tin đăng sẽ được quản trị viên kiểm duyệt trước khi hiển thị.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-undo"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-5 shadow-sm">
+                        <i class="fas fa-paper-plane"></i> Đăng tin ngay
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Script để xem trước hình ảnh khi chọn file
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = ''; // Xóa thông báo cũ
+
+            const files = event.target.files;
+            if (files.length === 0) {
+                previewContainer.innerHTML = '<div class="col-12"><p class="text-muted small italic">Chưa có ảnh nào được chọn.</p></div>';
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-4 col-md-3';
+                    col.innerHTML = `
+                        <div class="card">
+                            <img src="${e.target.result}" class="card-img-top img-thumbnail" style="height: 80px; object-fit: cover;">
+                        </div>
+                    `;
+                    previewContainer.appendChild(col);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
 }

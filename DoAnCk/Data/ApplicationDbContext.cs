@@ -22,20 +22,30 @@ namespace DoAnCk.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Cấu hình cho RoomRequest (Yêu cầu ở ghép) - FIX LỖI HIỆN TẠI
+            // 0. QUAN TRỌNG: Đổi tên bảng Identity để khớp với các bản Migration
+            // Lệnh này giải quyết lỗi "Cannot find the object Users"
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Role>().ToTable("Roles");
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<int>>().ToTable("UserRoles");
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>>().ToTable("RoleClaims");
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<int>>().ToTable("UserTokens");
+
+            // 1. Cấu hình cho RoomRequest (Yêu cầu ở ghép)
             modelBuilder.Entity<RoomRequest>()
                 .HasOne(rr => rr.Room)
-                .WithMany() // Một phòng có thể có nhiều yêu cầu
+                .WithMany()
                 .HasForeignKey(rr => rr.RoomId)
-                .OnDelete(DeleteBehavior.Restrict); // Tắt xóa tự động khi xóa Room
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomRequest>()
                 .HasOne(rr => rr.Sender)
-                .WithMany() // Một người dùng có thể gửi nhiều yêu cầu
+                .WithMany()
                 .HasForeignKey(rr => rr.SenderId)
-                .OnDelete(DeleteBehavior.Restrict); // Tắt xóa tự động khi xóa User (Sender)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // 2. Cấu hình cho Favorites (Để tránh lỗi tương tự ở bảng này)
+            // 2. Cấu hình cho Favorites (Yêu thích)
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.Favorites)
@@ -55,9 +65,22 @@ namespace DoAnCk.Data
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 4. Cấu hình khóa chính cho RoomAmenity (Giữ nguyên cái cũ của bạn)
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Room)
+                .WithMany(room => room.Reviews)
+                .HasForeignKey(r => r.RoomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 4. Cấu hình khóa chính cho RoomAmenity
             modelBuilder.Entity<RoomAmenity>()
                 .HasKey(ra => new { ra.RoomId, ra.AmenityId });
+
+            // 5. Cấu hình mối quan hệ Room - User (Chủ trọ)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Rooms)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -50,9 +50,11 @@
                                         Khu vực Chủ trọ
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="hostDropdown">
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">Đăng tin mới</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Danh sách phòng của tôi</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê/ở ghép</a></li>
+                                        <a class="dropdown-item" asp-area="Host" asp-controller="Rooms" asp-action="Create">Đăng tin mới</a>
+
+                                        <a class="dropdown-item" asp-area="Host" asp-controller="Rooms" asp-action="Index">Danh sách phòng của tôi</a>
+
+                                        <a class="dropdown-item" asp-area="Host" asp-controller="RoomRequests" asp-action="Index">Yêu cầu thuê/ở ghép</a>
                                     </ul>
                                 </li>
                             }

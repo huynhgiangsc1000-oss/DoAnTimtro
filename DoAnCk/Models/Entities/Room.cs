@@ -11,35 +11,34 @@ namespace DoAnCk.Models.Entities
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Tiêu đề không được để trống")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public double Area { get; set; } // Diện tích m2
+        public double Area { get; set; }
 
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
-        // Tọa độ Google Maps
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public bool IsApproved { get; set; } = false; // Trạng thái duyệt tin
+        public bool IsApproved { get; set; } = false;
 
-        // Foreign Keys
         public int UserId { get; set; }
         [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+        public virtual User User { get; set; } = null!;
 
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
 
-        // Navigation Properties
-        public virtual ICollection<RoomImage> Images { get; set; } = new List<RoomImage>();
+        // --- QUAN TRỌNG: Đã đổi tên thành RoomImages để khớp với logic View của bạn ---
+        public virtual ICollection<RoomImage> RoomImages { get; set; } = new List<RoomImage>();
+
         public virtual ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
