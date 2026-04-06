@@ -71,7 +71,9 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// 6. Seed Data: Tự động tạo 3 Role: Admin, Host, Member
+// ... (Giữ nguyên phần cấu hình từ bước 1 đến bước 5)
+
+// 6. Seed Data: Tự động tạo các Role hệ thống
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -82,18 +84,23 @@ using (var scope = app.Services.CreateScope())
 
         foreach (var roleName in roleNames)
         {
+            // Kiểm tra Role đã tồn tại chưa
             var roleExist = await roleManager.RoleExistsAsync(roleName);
             if (!roleExist)
             {
-                // Khi ID là string, Identity tự tạo GUID nếu bạn không truyền vào
-                await roleManager.CreateAsync(new Role { Name = roleName });
+                // Tạo Role mới với đầy đủ thông tin chuẩn hóa
+                await roleManager.CreateAsync(new Role 
+                { 
+                    Name = roleName,
+                    NormalizedName = roleName.ToUpper() 
+                });
             }
         }
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Có lỗi khi Seed Data vào Database.");
+        logger.LogError(ex, "Có lỗi xảy ra khi Seed Data Role vào Database.");
     }
 }
 
