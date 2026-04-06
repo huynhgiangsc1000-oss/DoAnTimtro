@@ -1,52 +1,105 @@
 ﻿@model DoAnCk.Models.Entities.Review
 
 @{
-    ViewData["Title"] = "Delete";
-    Layout = "ReviewController";
+    ViewData["Title"] = "Xóa đánh giá";
 }
 
-<h1>Delete</h1>
+<div class="delete-review-page">
+    <div class="delete-review-card">
+        <div class="delete-icon">🗑️</div>
+        <h2>Xóa đánh giá này?</h2>
+        <p>Bạn có chắc muốn xóa đánh giá cho phòng <strong>@Model.Room?.Title</strong> không?</p>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Review</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Rating)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Rating)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Comment)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Comment)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Title)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        <div class="rating-stars mb-3">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <span class="@(i <= Model.Rating ? "star-filled" : "star-empty")">★</span>
+            }
+        </div>
+
+        <div class="review-comment-box">
+            @Model.Comment
+        </div>
+
+        <form asp-action="Delete" method="post" class="mt-4">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn-delete-confirm">Xóa</button>
+            <a asp-action="Index" class="btn-cancel">Hủy</a>
+        </form>
+    </div>
 </div>
+
+<style>
+    .delete-review-page {
+        max-width: 760px;
+        margin: 50px auto;
+        padding: 0 16px;
+    }
+
+    .delete-review-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        text-align: center;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef2f7;
+    }
+
+    .delete-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+    }
+
+    .delete-review-card h2 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 10px;
+    }
+
+    .delete-review-card p {
+        color: #6b7280;
+        line-height: 1.7;
+    }
+
+    .review-comment-box {
+        margin-top: 12px;
+        background: #f9fafb;
+        border-radius: 16px;
+        padding: 16px;
+        color: #374151;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .rating-stars {
+        font-size: 24px;
+    }
+
+    .star-filled {
+        color: #f59e0b;
+    }
+
+    .star-empty {
+        color: #d1d5db;
+    }
+
+    .btn-delete-confirm, .btn-cancel {
+        border: none;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        margin: 0 6px;
+    }
+
+    .btn-delete-confirm {
+        background: #e11d48;
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #111827;
+    }
+</style>

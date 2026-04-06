@@ -2,7 +2,7 @@
 
 namespace DoAnCk.Models.Entities
 {
-    public class Role : IdentityRole<int>
+    public class Role : IdentityRole
     {
     }
 }

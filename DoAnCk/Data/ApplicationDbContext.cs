@@ -5,9 +5,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DoAnCk.Data
 {
     // Sử dụng Role (class tự tạo) thay vì IdentityRole để đồng bộ hệ thống
-    public class ApplicationDbContext : IdentityDbContext<User, Role, int>
+    public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Category> Categories { get; set; }

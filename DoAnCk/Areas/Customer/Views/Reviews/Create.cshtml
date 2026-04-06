@@ -1,52 +1,137 @@
 ﻿@model DoAnCk.Models.Entities.Review
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "ReviewController";
+    ViewData["Title"] = "Viết đánh giá";
 }
 
-<h1>Create</h1>
+<div class="review-form-page">
+    <div class="review-form-card">
+        <div class="review-form-header">
+            <h1>Viết đánh giá</h1>
+            <p>@ViewBag.RoomTitle</p>
+        </div>
 
-<h4>Review</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Rating" class="control-label"></label>
-                <input asp-for="Rating" class="form-control" />
+        <form asp-action="Create" method="post">
+            <input type="hidden" asp-for="RoomId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="rating-section">
+                <label class="form-label">Chấm điểm phòng</label>
+                <div class="star-rating">
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <input type="radio" id="star-@i" name="Rating" value="@i" @(Model.Rating == i ? "checked" : "") />
+                        <label for="star-@i" title="@i sao">★</label>
+                    }
+                </div>
                 <span asp-validation-for="Rating" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Comment" class="form-label">Cảm nhận của bạn</label>
+                <textarea asp-for="Comment" class="form-control review-textarea" rows="6"
+                          placeholder="Hãy chia sẻ trải nghiệm thực tế của bạn về phòng, vị trí, chủ trọ, tiện nghi..."></textarea>
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="RoomId" class="control-label"></label>
-                <select asp-for="RoomId" class ="form-control" asp-items="ViewBag.RoomId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="action-group">
+                <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
+                <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@Model.RoomId" class="btn-cancel-review">
+                    Quay lại
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<style>
+    .review-form-page {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 16px;
+    }
+
+    .review-form-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef2f7;
+    }
+
+    .review-form-header h1 {
+        font-size: 30px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 6px;
+    }
+
+    .review-form-header p {
+        color: #6b7280;
+        margin-bottom: 22px;
+    }
+
+    .rating-section {
+        margin-bottom: 22px;
+    }
+
+    .star-rating {
+        direction: rtl;
+        display: inline-flex;
+        gap: 6px;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 34px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: #f59e0b;
+            }
+
+    .review-textarea {
+        border-radius: 16px;
+        min-height: 150px;
+        padding: 14px;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-submit-review,
+    .btn-cancel-review {
+        border: none;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    .btn-submit-review {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .btn-cancel-review {
+        background: #f3f4f6;
+        color: #111827;
+    }
+</style>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

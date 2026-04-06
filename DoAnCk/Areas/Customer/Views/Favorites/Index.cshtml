@@ -1,42 +1,304 @@
 ﻿@model IEnumerable<DoAnCk.Models.Entities.Favorite>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "FavoriteController";
+    ViewData["Title"] = "Phòng trọ yêu thích";
 }
 
-<h1>Index</h1>
+<div class="favorite-page">
+    <div class="favorite-header">
+        <div>
+            <h1>Phòng trọ yêu thích</h1>
+            <p>Lưu lại những phòng bạn quan tâm để xem lại nhanh hơn.</p>
+        </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Room)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Room.Title)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        <a asp-area="" asp-controller="Rooms" asp-action="Index" class="browse-room-btn">
+            Khám phá thêm phòng
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-favorite">
+            <div class="empty-icon">♡</div>
+            <h3>Bạn chưa có phòng yêu thích nào</h3>
+            <p>Hãy lưu những phòng phù hợp để tiện xem lại sau.</p>
+            <a asp-area="" asp-controller="Rooms" asp-action="Index" class="empty-btn">
+                Tìm phòng ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="favorite-grid">
+            @foreach (var item in Model)
+            {
+                var room = item.Room;
+                var mainImage = room?.Images?.FirstOrDefault(x => x.IsMain)?.ImageUrl
+                ?? room?.Images?.FirstOrDefault()?.ImageUrl
+                ?? "https://via.placeholder.com/800x500?text=No+Image";
+
+                <div class="favorite-card">
+                    <div class="favorite-image-wrap">
+                        <img src="@mainImage" alt="@room?.Title" class="favorite-image" />
+                        <span class="favorite-badge">❤ Đã lưu</span>
+                    </div>
+
+                    <div class="favorite-body">
+                        <h3 class="favorite-title">@room?.Title</h3>
+
+                        <div class="favorite-price">
+                            @String.Format("{0:N0}", room?.Price) đ/tháng
+                        </div>
+
+                        <div class="favorite-meta">
+                            <span>📐 @room?.Area m²</span>
+                        </div>
+
+                        <div class="favorite-address">
+                            📍 @room?.Address
+                        </div>
+
+                        <div class="favorite-actions">
+                            <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@room?.Id"
+                               class="btn-detail">
+                                Xem chi tiết phòng
+                            </a>
+
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn-soft">
+                                Xem mục đã lưu
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn-remove">
+                                Bỏ yêu thích
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .favorite-page {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 16px 40px;
+    }
+
+    .favorite-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+
+    .favorite-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 6px;
+    }
+
+    .favorite-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 15px;
+    }
+
+    .browse-room-btn,
+    .empty-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: 0.25s ease;
+        border: none;
+    }
+
+    .browse-room-btn:hover,
+    .empty-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        color: #fff;
+    }
+
+    .favorite-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 22px;
+    }
+
+    .favorite-card {
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef2f7;
+        transition: 0.3s ease;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .favorite-image-wrap {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+
+    .favorite-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .favorite-badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #e11d48;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .favorite-body {
+        padding: 18px;
+    }
+
+    .favorite-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        min-height: 56px;
+    }
+
+    .favorite-price {
+        color: #dc2626;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .favorite-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        color: #374151;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .favorite-address {
+        color: #6b7280;
+        font-size: 14px;
+        min-height: 42px;
+        margin-bottom: 16px;
+        line-height: 1.5;
+    }
+
+    .favorite-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-detail,
+    .btn-soft,
+    .btn-remove {
+        text-decoration: none;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.25s ease;
+    }
+
+    .btn-detail {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .btn-detail:hover {
+        background: #1d4ed8;
+        color: #fff;
+    }
+
+    .btn-soft {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .btn-soft:hover {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+
+    .btn-remove {
+        background: #fff1f2;
+        color: #e11d48;
+    }
+
+    .btn-remove:hover {
+        background: #ffe4e6;
+        color: #be123c;
+    }
+
+    .empty-favorite {
+        text-align: center;
+        padding: 60px 20px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        border: 1px solid #eef2f7;
+    }
+
+    .empty-icon {
+        font-size: 56px;
+        color: #e11d48;
+        margin-bottom: 12px;
+    }
+
+    .empty-favorite h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .empty-favorite p {
+        color: #6b7280;
+        margin-bottom: 18px;
+    }
+
+    @@media (max-width: 768px) {
+        .favorite-header h1 {
+            font-size: 26px;
+        }
+
+        .favorite-title {
+            min-height: auto;
+        }
+
+        .favorite-image-wrap {
+            height: 200px;
+        }
+    }
+</style>
