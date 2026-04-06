@@ -11,9 +11,9 @@ namespace DoAnCk.Models.Entities
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Tiêu đề không được để trống")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }

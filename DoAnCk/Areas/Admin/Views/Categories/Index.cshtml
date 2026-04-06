@@ -1,35 +1,59 @@
-﻿@model IEnumerable<DoAnCk.Models.Entities.Category>
+﻿@using DoAnCk.Models.Entities
+@model IEnumerable<DoAnCk.Models.Entities.Room>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Trang Chủ - Tìm Phòng Trọ";
 }
 
-<h1>Index</h1>
+<style>
+    .hero-banner {
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1350&q=80');
+        padding: 80px 0; color: white; border-radius: 0 0 25px 25px;
+    }
+    .room-card { border: none; border-radius: 15px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
+    .room-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .room-img { height: 220px; object-fit: cover; }
+    .price-text { color: #e74c3c; font-size: 1.25rem; font-weight: bold; }
+</style>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="hero-banner text-center mb-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">PhongTroTot - Tìm Là Thấy</h1>
+        <p class="lead">Hàng ngàn phòng trọ xác thực, giá rẻ mỗi ngày</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4 mb-5">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100 room-card">
+                        <img src="@(item.Images != null && item.Images.Any() ? item.Images.First().ImageUrl : "https://via.placeholder.com/400x250?text=No+Image")" 
+     class="card-img-top room-img" 
+     onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate fw-bold text-primary">@item.Title</h5>
+                            <p class="text-muted small"><i class="bi bi-geo-alt-fill text-danger"></i> @item.Address</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-text">@item.Price.ToString("N0") đ</span>
+                                <span class="badge bg-light text-dark border">@item.Area m²</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning w-100 fw-bold text-white">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Đang tải dữ liệu hoặc chưa có phòng trọ nào...</p>
+            </div>
+        }
+    </div>
+</div>

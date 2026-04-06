@@ -73,15 +73,31 @@ app.MapRazorPages();
 // 6. Seed Data: Tự động tạo Role khi ứng dụng chạy lần đầu
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-    string[] roles = { "Admin", "Host", "Member" };
-
-    foreach (var roleName in roles)
+    var services = scope.ServiceProvider;
+    try
     {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new Role { Name = roleName });
-        }
+        var roleManager = services.GetRequiredService<RoleManager<Role>>();
+        string[] roles = { "Admin", "Host", "Member" };
+
+        // Tạo một Task chạy ngầm để xử lý các hàm Async trong Program.cs
+        Task.Run(async () => {
+            foreach (var roleName in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new Role
+                    {
+                        Name = roleName,
+                        NormalizedName = roleName.ToUpper() // Thêm dòng này để Identity hoạt động chuẩn
+                    });
+                }
+            }
+        }).GetAwaiter().GetResult(); // Chờ tác vụ hoàn thành trước khi chạy tiếp App
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Có lỗi xảy ra khi khởi tạo Role.");
     }
 }
 
