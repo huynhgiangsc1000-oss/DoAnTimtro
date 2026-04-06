@@ -1,49 +1,89 @@
 ﻿@model DoAnCk.Models.Entities.RoomRequest
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "MyRequestController";
+    ViewData["Title"] = "Chi tiết yêu cầu";
 }
 
-<h1>Details</h1>
+<div class="container page-shell">
+    <div class="form-shell">
+        <div class="page-header">
+            <h1 class="page-title">Chi tiết yêu cầu</h1>
+            <p class="page-subtitle">Xem đầy đủ thông tin của yêu cầu bạn đã gửi tới chủ trọ.</p>
+        </div>
 
-<div>
-    <h4>RoomRequest</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Sender)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sender.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Message)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Message)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RequestDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RequestDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="modern-card">
+            <div class="modern-card-body">
+                <dl class="row detail-grid">
+                    <dt class="col-sm-4">Phòng</dt>
+                    <dd class="col-sm-8">@Model.Room?.Title</dd>
+
+                    <dt class="col-sm-4">Người gửi</dt>
+                    <dd class="col-sm-8">@Model.Sender?.UserName</dd>
+
+                    <dt class="col-sm-4">Nội dung</dt>
+                    <dd class="col-sm-8">@Model.Message</dd>
+
+                    <dt class="col-sm-4">Ngày gửi</dt>
+                    <dd class="col-sm-8">@Model.RequestDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Trạng thái</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Status.ToString() == "Pending")
+                        {
+                            <span class="status-badge status-pending">
+                                <i class="fa-regular fa-clock"></i> Đang chờ
+                            </span>
+                        }
+                        else if (Model.Status.ToString() == "Accepted")
+                        {
+                            <span class="status-badge status-accepted">
+                                <i class="fa-solid fa-check"></i> Đã chấp nhận
+                            </span>
+                        }
+                        else if (Model.Status.ToString() == "Rejected")
+                        {
+                            <span class="status-badge status-rejected">
+                                <i class="fa-solid fa-xmark"></i> Đã từ chối
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-other">@Model.Status</span>
+                        }
+                    </dd>
+                </dl>
+
+                <div class="action-group mt-4" style="justify-content:flex-start;">
+                    <a asp-area="Customer"
+                       asp-controller="RoomRequests"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary px-4 py-2">
+                        Quay lại
+                    </a>
+
+                    @if (Model.Status.ToString() == "Pending")
+                    {
+                        <a asp-area="Customer"
+                           asp-controller="RoomRequests"
+                           asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-warning px-4 py-2">
+                            Sửa yêu cầu
+                        </a>
+                    }
+
+                    @if (Model.Status.ToString() == "Accepted")
+                    {
+                        <a asp-area="Customer"
+                           asp-controller="Reviews"
+                           asp-action="Create"
+                           asp-route-roomId="@Model.RoomId"
+                           class="btn btn-primary px-4 py-2">
+                            Đánh giá phòng này
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

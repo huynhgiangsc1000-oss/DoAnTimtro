@@ -36,102 +36,13 @@
 
             <div class="action-group">
                 <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
-                <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@Model.RoomId" class="btn-cancel-review">
+                <a asp-area="Customer"
+                   asp-controller="RoomRequests"
+                   asp-action="Index"
+                   class="btn-cancel-review">
                     Quay lại
                 </a>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-    .review-form-page {
-        max-width: 760px;
-        margin: 40px auto;
-        padding: 0 16px;
-    }
-
-    .review-form-card {
-        background: #fff;
-        border-radius: 24px;
-        padding: 28px;
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-        border: 1px solid #eef2f7;
-    }
-
-    .review-form-header h1 {
-        font-size: 30px;
-        font-weight: 800;
-        color: #111827;
-        margin-bottom: 6px;
-    }
-
-    .review-form-header p {
-        color: #6b7280;
-        margin-bottom: 22px;
-    }
-
-    .rating-section {
-        margin-bottom: 22px;
-    }
-
-    .star-rating {
-        direction: rtl;
-        display: inline-flex;
-        gap: 6px;
-    }
-
-        .star-rating input {
-            display: none;
-        }
-
-        .star-rating label {
-            font-size: 34px;
-            color: #d1d5db;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-            .star-rating input:checked ~ label,
-            .star-rating label:hover,
-            .star-rating label:hover ~ label {
-                color: #f59e0b;
-            }
-
-    .review-textarea {
-        border-radius: 16px;
-        min-height: 150px;
-        padding: 14px;
-    }
-
-    .action-group {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .btn-submit-review,
-    .btn-cancel-review {
-        border: none;
-        text-decoration: none;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-weight: 700;
-    }
-
-    .btn-submit-review {
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .btn-cancel-review {
-        background: #f3f4f6;
-        color: #111827;
-    }
-</style>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

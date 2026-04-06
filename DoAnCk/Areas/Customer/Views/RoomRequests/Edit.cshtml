@@ -1,55 +1,56 @@
 ﻿@model DoAnCk.Models.Entities.RoomRequest
 
 @{
-    ViewData["Title"] = "Edit";
-    Layout = "MyRequestController";
+    ViewData["Title"] = "Chỉnh sửa yêu cầu";
+    string roomTitle = ViewBag.RoomTitle as string ?? "";
 }
 
-<h1>Edit</h1>
+<div class="container page-shell">
+    <div class="form-shell">
+        <div class="page-header">
+            <h1 class="page-title">Chỉnh sửa yêu cầu</h1>
+            <p class="page-subtitle">Bạn chỉ nên cập nhật nội dung khi yêu cầu vẫn đang ở trạng thái chờ xử lý.</p>
+        </div>
 
-<h4>RoomRequest</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="RoomId" class="control-label"></label>
-                <select asp-for="RoomId" class="form-control" asp-items="ViewBag.RoomId"></select>
-                <span asp-validation-for="RoomId" class="text-danger"></span>
+        <div class="modern-card">
+            <div class="modern-card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="RoomId" type="hidden" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Phòng</label>
+                        <input type="text" class="form-control" value="@roomTitle" readonly />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Message" class="form-label">Nội dung yêu cầu</label>
+                        <textarea asp-for="Message" class="form-control" rows="6"></textarea>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
+
+                    <div class="action-group" style="justify-content:flex-start;">
+                        <button type="submit" class="btn btn-warning px-4 py-2">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Cập nhật
+                        </button>
+
+                        <a asp-area="Customer"
+                           asp-controller="RoomRequests"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary px-4 py-2">
+                            Quay lại
+                        </a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="SenderId" class="control-label"></label>
-                <select asp-for="SenderId" class="form-control" asp-items="ViewBag.SenderId"></select>
-                <span asp-validation-for="SenderId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Message" class="control-label"></label>
-                <input asp-for="Message" class="form-control" />
-                <span asp-validation-for="Message" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RequestDate" class="control-label"></label>
-                <input asp-for="RequestDate" class="form-control" />
-                <span asp-validation-for="RequestDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -1,52 +1,71 @@
 ﻿@model DoAnCk.Models.Entities.RoomRequest
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "MyRequestController";
+    ViewData["Title"] = "Gửi yêu cầu";
+    bool roomLocked = ViewBag.RoomIdLocked != null && (bool)ViewBag.RoomIdLocked;
+    string roomTitle = ViewBag.RoomTitle as string ?? "";
 }
 
-<h1>Create</h1>
+<div class="container page-shell">
+    <div class="form-shell">
+        <div class="page-header">
+            <h1 class="page-title">Gửi yêu cầu thuê / ở ghép</h1>
+            <p class="page-subtitle">Điền thông tin rõ ràng để chủ trọ dễ xem xét và phản hồi hơn.</p>
+        </div>
 
-<h4>RoomRequest</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RoomId" class="control-label"></label>
-                <select asp-for="RoomId" class ="form-control" asp-items="ViewBag.RoomId"></select>
+        <div class="modern-card">
+            <div class="modern-card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    @if (roomLocked)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Phòng đã chọn</label>
+                            <input type="text" class="form-control" value="@roomTitle" readonly />
+                            <input asp-for="RoomId" type="hidden" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label asp-for="RoomId" class="form-label">Chọn phòng</label>
+                            <select asp-for="RoomId" class="form-select" asp-items="ViewBag.RoomId">
+                                <option value="">-- Chọn phòng --</option>
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger"></span>
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <label asp-for="Message" class="form-label">Nội dung yêu cầu</label>
+                        <textarea asp-for="Message"
+                                  class="form-control"
+                                  rows="6"
+                                  placeholder="Ví dụ: Em muốn thuê phòng từ đầu tháng tới, mong được hỗ trợ thêm thông tin về giá thuê, tiền cọc và nội quy."></textarea>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
+
+                    <div class="action-group" style="justify-content:flex-start;">
+                        <button type="submit" class="btn btn-primary px-4 py-2">
+                            <i class="fa-solid fa-paper-plane me-2"></i>Gửi yêu cầu
+                        </button>
+
+                        <a asp-area="Customer"
+                           asp-controller="RoomRequests"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary px-4 py-2">
+                            Quay lại
+                        </a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="SenderId" class="control-label"></label>
-                <select asp-for="SenderId" class ="form-control" asp-items="ViewBag.SenderId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Message" class="control-label"></label>
-                <input asp-for="Message" class="form-control" />
-                <span asp-validation-for="Message" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RequestDate" class="control-label"></label>
-                <input asp-for="RequestDate" class="form-control" />
-                <span asp-validation-for="RequestDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
