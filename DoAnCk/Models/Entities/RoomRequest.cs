@@ -8,17 +8,32 @@ namespace DoAnCk.Models.Entities
         [Key]
         public int Id { get; set; }
 
+        // Khóa ngoại liên kết tới bảng Room (vẫn giữ int nếu RoomId là int)
         public int RoomId { get; set; }
+
+        [ForeignKey("RoomId")]
         public virtual Room Room { get; set; }
 
-        public int SenderId { get; set; } // Người gửi lời mời ở ghép
+        // SỬA TẠI ĐÂY: Đổi sang string để khớp với IdentityUser mặc định (GUID)
+        [Required]
+        public string SenderId { get; set; }
+
         [ForeignKey("SenderId")]
         public virtual User Sender { get; set; }
 
-        public string Message { get; set; } // Lời nhắn giới thiệu bản thân
+        [Required(ErrorMessage = "Vui lòng nhập lời nhắn giới thiệu.")]
+        [StringLength(500)]
+        public string Message { get; set; }
+
         public DateTime RequestDate { get; set; } = DateTime.Now;
+
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
     }
 
-    public enum RequestStatus { Pending, Accepted, Rejected }
+    public enum RequestStatus
+    {
+        Pending,   // Đang chờ
+        Accepted,  // Đã chấp nhận
+        Rejected   // Đã từ chối
+    }
 }

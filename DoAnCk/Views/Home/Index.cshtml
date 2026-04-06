@@ -1,8 +1,139 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<DoAnCk.Models.Entities.Room>
+@{
+    ViewData["Title"] = "Trang chủ - Tìm trọ nhanh";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section text-white py-5 mb-5 shadow" style="background: linear-gradient(45deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="container text-center py-4">
+        <h1 class="display-4 fw-bold">Tìm kiếm phòng trọ ưng ý</h1>
+        <p class="lead">Hàng ngàn phòng trọ giá tốt và uy tín đang chờ đón bạn.</p>
+
+        <div class="search-box p-4 bg-white rounded shadow-lg mt-4 mx-auto" style="max-width: 900px;">
+            <form class="row g-2" method="get" asp-controller="Rooms" asp-action="Index">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0" placeholder="Khu vực, quận huyện...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="categoryId" class="form-select">
+                        <option value="">Loại phòng</option>
+                        <option value="1">Phòng trọ</option>
+                        <option value="2">Căn hộ dịch vụ</option>
+                        <option value="3">Ở ghép</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="priceRange" class="form-select">
+                        <option value="">Mức giá</option>
+                        <option value="1">Dưới 2 triệu</option>
+                        <option value="2">2 - 5 triệu</option>
+                        <option value="3">Trên 5 triệu</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm">TÌM KIẾM</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<div class="container">
+    <div class="mb-5">
+        <h3 class="mb-4 fw-bold"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Danh mục phổ biến</h3>
+        <div class="row text-center">
+            <div class="col-6 col-md-3 mb-3">
+                <div class="p-4 border rounded shadow-sm bg-white card-hover">
+                    <i class="bi bi-house-door text-primary display-5"></i>
+                    <h6 class="mt-3 fw-bold">Phòng trọ</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="p-4 border rounded shadow-sm bg-white card-hover">
+                    <i class="bi bi-building text-success display-5"></i>
+                    <h6 class="mt-3 fw-bold">Căn hộ</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="p-4 border rounded shadow-sm bg-white card-hover">
+                    <i class="bi bi-people text-info display-5"></i>
+                    <h6 class="mt-3 fw-bold">Ở ghép</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="p-4 border rounded shadow-sm bg-white card-hover">
+                    <i class="bi bi-shop text-warning display-5"></i>
+                    <h6 class="mt-3 fw-bold">Mặt bằng</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"><i class="bi bi-fire text-danger"></i> Tin mới đăng</h3>
+            <a asp-controller="Rooms" asp-action="Index" class="btn btn-link text-decoration-none">Xem tất cả &rarr;</a>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0 overflow-hidden card-room">
+                        <div class="position-relative">
+                            @* Xử lý ảnh mặc định nếu phòng không có ảnh *@
+                            @{
+                                var firstImg = item.Images?.FirstOrDefault()?.ImageUrl;
+                                var displayImg = string.IsNullOrEmpty(firstImg) ? "/images/no-image.jpg" : firstImg;
+                            }
+                            <img src="@displayImg" class="card-img-top" alt="Room Image" style="height: 220px; object-fit: cover;">
+                            <span class="position-absolute top-0 start-0 bg-danger text-white px-3 py-1 m-2 rounded-pill small">Mới</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate fw-bold">@item.Title</h5>
+                            <p class="text-danger fs-5 fw-bold mb-1">@item.Price.ToString("N0") <small>đ/tháng</small></p>
+                            <p class="text-muted small mb-3"><i class="bi bi-geo-alt-fill text-secondary"></i> @item.Address</p>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                <span class="text-muted"><i class="bi bi-aspect-ratio"></i> @item.Area m²</span>
+                                <a asp-controller="Rooms" asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary btn-sm rounded-pill px-3">Chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <p class="mt-3 text-muted fs-5">Hiện chưa có tin đăng nào phù hợp.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .card-hover:hover {
+        transform: translateY(-8px);
+        background-color: #f8f9fa !important;
+        border-color: #0d6efd !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .card-room {
+        transition: all 0.3s ease;
+    }
+
+        .card-room:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+            transform: scale(1.02);
+        }
+
+    .transition {
+        transition: all 0.3s ease;
+    }
+</style>

@@ -14,10 +14,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// 2. Cấu hình Identity (CHỈ DÙNG MỘT CÁCH NÀY)
-// Sử dụng User và Role tùy chỉnh của bạn
+// 2. Cấu hình Identity với ID dạng chuỗi (Mặc định của User và Role)
+// Đảm bảo class User : IdentityUser và class Role : IdentityRole (không có <int>)
 builder.Services.AddIdentity<User, Role>(options => {
-    options.SignIn.RequireConfirmedAccount = false; // Tắt xác nhận Email để dễ test
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
@@ -25,17 +25,19 @@ builder.Services.AddIdentity<User, Role>(options => {
     options.Password.RequireLowercase = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultUI() // Quan trọng: Để sử dụng các trang Login/Register mặc định
+.AddDefaultUI()
 .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// 3. Cấu hình Cookie cho phân quyền Areas
+// 3. Cấu hình Cookie
 builder.Services.ConfigureApplicationCookie(options => {
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
 var app = builder.Build();
@@ -55,11 +57,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseAuthentication(); // Xác thực danh tính
-app.UseAuthorization();  // Phân quyền
+app.UseAuthentication();
+app.UseAuthorization();
 
 // 5. Định nghĩa Route
-// Lưu ý: Route Area phải nằm TRÊN Route Default
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -70,18 +71,29 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// 6. Seed Data: Tự động tạo Role khi ứng dụng chạy lần đầu
+// 6. Seed Data: Tự động tạo 3 Role: Admin, Host, Member
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-    string[] roles = { "Admin", "Host", "Member" };
-
-    foreach (var roleName in roles)
+    var services = scope.ServiceProvider;
+    try
     {
-        if (!await roleManager.RoleExistsAsync(roleName))
+        var roleManager = services.GetRequiredService<RoleManager<Role>>();
+        string[] roleNames = { "Admin", "Host", "Member" };
+
+        foreach (var roleName in roleNames)
         {
-            await roleManager.CreateAsync(new Role { Name = roleName });
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
+            {
+                // Khi ID là string, Identity tự tạo GUID nếu bạn không truyền vào
+                await roleManager.CreateAsync(new Role { Name = roleName });
+            }
         }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Có lỗi khi Seed Data vào Database.");
     }
 }
 
