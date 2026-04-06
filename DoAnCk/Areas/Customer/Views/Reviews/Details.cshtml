@@ -1,49 +1,127 @@
 ﻿@model DoAnCk.Models.Entities.Review
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "ReviewController";
+    ViewData["Title"] = "Chi tiết đánh giá";
 }
 
-<h1>Details</h1>
+<div class="review-detail-page">
+    <div class="review-detail-card">
+        <h1>Chi tiết đánh giá</h1>
 
-<div>
-    <h4>Review</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Rating)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Rating)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Comment)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Comment)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Title)
-        </dd>
-    </dl>
+        <div class="detail-block">
+            <span class="detail-label">Phòng</span>
+            <div class="detail-value">@Model.Room?.Title</div>
+        </div>
+
+        <div class="detail-block">
+            <span class="detail-label">Số sao</span>
+            <div class="rating-stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="@(i <= Model.Rating ? "star-filled" : "star-empty")">★</span>
+                }
+            </div>
+        </div>
+
+        <div class="detail-block">
+            <span class="detail-label">Ngày tạo</span>
+            <div class="detail-value">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+
+        <div class="detail-block">
+            <span class="detail-label">Nội dung</span>
+            <div class="detail-comment">@Model.Comment</div>
+        </div>
+
+        <div class="detail-actions">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">Sửa</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-delete">Xóa</a>
+            <a asp-action="Index" class="btn-back">Quay lại</a>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    .review-detail-page {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 16px;
+    }
+
+    .review-detail-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef2f7;
+    }
+
+        .review-detail-card h1 {
+            font-size: 30px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 22px;
+        }
+
+    .detail-block {
+        margin-bottom: 18px;
+    }
+
+    .detail-label {
+        display: block;
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .detail-value, .detail-comment {
+        color: #111827;
+        font-weight: 600;
+        line-height: 1.7;
+    }
+
+    .detail-comment {
+        white-space: pre-line;
+    }
+
+    .rating-stars {
+        font-size: 24px;
+    }
+
+    .star-filled {
+        color: #f59e0b;
+    }
+
+    .star-empty {
+        color: #d1d5db;
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .btn-edit, .btn-delete, .btn-back {
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    .btn-edit {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .btn-delete {
+        background: #fff1f2;
+        color: #e11d48;
+    }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #111827;
+    }
+</style>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnCk.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260404123513_FixCycleErrors")]
-    partial class FixCycleErrors
+    [Migration("20260405101146_n2")]
+    partial class n2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

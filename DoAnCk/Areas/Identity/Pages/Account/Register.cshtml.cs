@@ -4,18 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using DoAnCk.Models.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace DoAnCk.Areas.Identity.Pages.Account
@@ -27,18 +21,21 @@ namespace DoAnCk.Areas.Identity.Pages.Account
         private readonly IUserStore<User> _userStore;
         private readonly IUserEmailStore<User> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly RoleManager<Role> _roleManager; // Thêm RoleManager
 
         public RegisterModel(
             UserManager<User> userManager,
             IUserStore<User> userStore,
             SignInManager<User> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            RoleManager<Role> roleManager) // Inject RoleManager
         {
             _userManager = userManager;
             _userStore = userStore;
-            _emailStore = GetEmailStore();
+            _emailStore = (IUserEmailStore<User>)_userStore;
             _signInManager = signInManager;
             _logger = logger;
+            _roleManager = roleManager;
         }
 
         [BindProperty]
@@ -48,16 +45,19 @@ namespace DoAnCk.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required(ErrorMessage = "Vui lòng nhập họ tên.")]
+            [Required(ErrorMessage = "Vui lòng chọn vai trò của bạn.")]
+            public string Role { get; set; } // Nhận giá trị "Member" hoặc "Host"
+
+            [Required(ErrorMessage = "Họ tên không được để trống.")]
             [Display(Name = "Họ và Tên")]
             public string FullName { get; set; }
 
-            [Required(ErrorMessage = "Vui lòng nhập Email.")]
+            [Required(ErrorMessage = "Email không được để trống.")]
             [EmailAddress(ErrorMessage = "Email không đúng định dạng.")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required(ErrorMessage = "Vui lòng nhập mật khẩu.")]
+            [Required(ErrorMessage = "Mật khẩu không được để trống.")]
             [StringLength(100, ErrorMessage = "{0} phải dài từ {2} đến {1} ký tự.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Mật khẩu")]
@@ -79,56 +79,39 @@ namespace DoAnCk.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = CreateUser();
+                var user = new User();
 
-                // Gán Họ Tên vào thực thể User
                 user.FullName = Input.FullName;
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-                // Thực hiện lưu vào Database
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account successfully.");
+                    _logger.LogInformation("Người dùng đã tạo tài khoản thành công.");
 
-                    // Đăng nhập ngay sau khi tạo tài khoản thành công
+                    // LOGIC GÁN QUYỀN VÀO DATABASE
+                    // Kiểm tra Role có tồn tại chưa, nếu chưa thì tạo (phòng hờ)
+                    if (!await _roleManager.RoleExistsAsync(Input.Role))
+                    {
+                        await _roleManager.CreateAsync(new Role { Name = Input.Role });
+                    }
+
+                    // Gán quyền cho User vừa tạo
+                    await _userManager.AddToRoleAsync(user, Input.Role);
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
 
-                // Nếu có lỗi từ phía Identity (mật khẩu yếu, email trùng...), hiển thị lỗi
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // Nếu dữ liệu không hợp lệ, tải lại trang kèm thông báo lỗi
             return Page();
-        }
-
-        private User CreateUser()
-        {
-            try
-            {
-                return Activator.CreateInstance<User>();
-            }
-            catch
-            {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'.");
-            }
-        }
-
-        private IUserEmailStore<User> GetEmailStore()
-        {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-            return (IUserEmailStore<User>)_userStore;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace DoAnCk.Models.Entities
         public bool IsApproved { get; set; } = false; // Trạng thái duyệt tin
 
         // Foreign Keys
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
 

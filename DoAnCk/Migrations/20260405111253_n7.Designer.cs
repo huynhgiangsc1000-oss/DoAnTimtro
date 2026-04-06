@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnCk.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260404153540_UpdateUserTable")]
-    partial class UpdateUserTable
+    [Migration("20260405111253_n7")]
+    partial class n7
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

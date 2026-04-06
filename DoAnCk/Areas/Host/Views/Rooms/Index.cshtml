@@ -5,6 +5,9 @@
     Layout = "RoomController";
 }
 
+@* Anti-forgery token used by AJAX POSTs *@
+@Html.AntiForgeryToken()
+
 <h1>Index</h1>
 
 <p>
@@ -86,6 +89,15 @@
                 @Html.DisplayFor(modelItem => item.Category.Name)
             </td>
             <td>
+                @* Favorite button (AJAX) *@
+                <button type="button"
+                        class="btn btn-link p-0 favorite-btn"
+                        title="Yêu thích"
+                        data-room-id="@item.Id"
+                        aria-label="Favorite">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+                |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
@@ -94,3 +106,65 @@
 }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        (function ($) {
+            $(function () {
+                // read antiforgery token rendered by @Html.AntiForgeryToken()
+                var token = $('input[name="__RequestVerificationToken"]').first().val();
+
+                // initialize favorite buttons state
+                $('.favorite-btn').each(function () {
+                    var btn = $(this);
+                    var roomId = btn.data('room-id');
+
+                    $.get('/Customer/Favorites/IsFavorite', { roomId: roomId })
+                        .done(function (res) {
+                            if (res && res.success && res.isFavorite) {
+                                btn.addClass('favorited').html('<i class="fa-solid fa-heart text-danger"></i>');
+                            } else {
+                                btn.removeClass('favorited').html('<i class="fa-regular fa-heart"></i>');
+                            }
+                        })
+                        .fail(function () {
+                            // leave as default if request fails
+                        });
+                });
+
+                // toggle favorite via AJAX
+                $(document).on('click', '.favorite-btn', function (e) {
+                    e.preventDefault();
+                    var btn = $(this);
+                    var roomId = btn.data('room-id');
+
+                    $.ajax({
+                        url: '/Customer/Favorites/Toggle',
+                        method: 'POST',
+                        headers: { 'RequestVerificationToken': token },
+                        data: { roomId: roomId },
+                        success: function (res) {
+                            if (res && res.success) {
+                                if (res.isFavorite) {
+                                    btn.addClass('favorited').html('<i class="fa-solid fa-heart text-danger"></i>');
+                                } else {
+                                    btn.removeClass('favorited').html('<i class="fa-regular fa-heart"></i>');
+                                }
+                            } else {
+                                alert(res && res.message ? res.message : 'Có lỗi xảy ra.');
+                            }
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 401) {
+                                // not authenticated: redirect to login (adjust path if you have custom login)
+                                window.location.href = '/Identity/Account/Login';
+                            } else {
+                                alert('Lỗi khi xử lý yêu thích. Vui lòng thử lại.');
+                            }
+                        }
+                    });
+                });
+            });
+        })(jQuery);
+    </script>
+}

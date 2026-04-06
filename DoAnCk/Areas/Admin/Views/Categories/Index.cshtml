@@ -1,59 +1,51 @@
-﻿@using DoAnCk.Models.Entities
+@using DoAnCk.Models.Entities
 @model IEnumerable<DoAnCk.Models.Entities.Room>
-
 @{
-    ViewData["Title"] = "Trang Chủ - Tìm Phòng Trọ";
+    ViewData["Title"] = "Quản lý danh mục";
 }
 
-<style>
-    .hero-banner {
-        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1350&q=80');
-        padding: 80px 0; color: white; border-radius: 0 0 25px 25px;
-    }
-    .room-card { border: none; border-radius: 15px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
-    .room-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    .room-img { height: 220px; object-fit: cover; }
-    .price-text { color: #e74c3c; font-size: 1.25rem; font-weight: bold; }
-</style>
-
-<div class="hero-banner text-center mb-5">
-    <div class="container">
-        <h1 class="display-4 fw-bold">PhongTroTot - Tìm Là Thấy</h1>
-        <p class="lead">Hàng ngàn phòng trọ xác thực, giá rẻ mỗi ngày</p>
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold"><i class="bi bi-tags"></i> Quản lý danh mục</h2>
+        <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm">
+            <i class="bi bi-plus-circle"></i> Thêm danh mục mới
+        </a>
     </div>
-</div>
 
-<div class="container">
-    <div class="row g-4 mb-5">
-        @if (Model != null && Model.Any())
-        {
-            @foreach (var item in Model)
-            {
-                <div class="col-md-4">
-                    <div class="card h-100 room-card">
-                        <img src="@(item.Images != null && item.Images.Any() ? item.Images.First().ImageUrl : "https://via.placeholder.com/400x250?text=No+Image")" 
-     class="card-img-top room-img" 
-     onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
-                        <div class="card-body">
-                            <h5 class="card-title text-truncate fw-bold text-primary">@item.Title</h5>
-                            <p class="text-muted small"><i class="bi bi-geo-alt-fill text-danger"></i> @item.Address</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="price-text">@item.Price.ToString("N0") đ</span>
-                                <span class="badge bg-light text-dark border">@item.Area m²</span>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-0 pb-3">
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning w-100 fw-bold text-white">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <p class="text-muted">Đang tải dữ liệu hoặc chưa có phòng trọ nào...</p>
-            </div>
-        }
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary">
+                    <tr>
+                        <th class="ps-4" style="width: 10%">ID</th>
+                        <th>Tên danh mục</th>
+                        <th class="text-center" style="width: 20%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">#@item.Id</td>
+                            <td>
+                                <span class="fw-bold text-dark">@item.Name</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        <i class="bi bi-pencil"></i> Sửa
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Xóa danh mục này sẽ ảnh hưởng đến các phòng trọ liên quan. Tiếp tục?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                            <i class="bi bi-trash"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

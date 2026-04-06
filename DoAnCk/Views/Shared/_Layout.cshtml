@@ -1,12 +1,18 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Identity
+@using DoAnCk.Models.Entities
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PhongTot</title>
+    <title>@ViewData["Title"] - EasyRent</title>
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     
     <style>
@@ -15,52 +21,47 @@
             --pt-text-main: #004d61;
         }
 
-        /* Header & Navbar */
         .pt-navbar {
             background: rgba(255, 255, 255, 0.98) !important;
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            height: 80px;
+            min-height: 80px;
             z-index: 1050;
-        }
-
-        .main-logo-img {
-            height: 55px;
-            width: auto;
-            object-fit: contain;
-            transition: 0.3s;
         }
 
         .nav-link {
             color: var(--pt-text-main) !important;
             font-weight: 500;
-            margin: 0 5px;
+            transition: 0.3s;
+            border-radius: 8px;
         }
 
         .nav-link:hover {
+            background-color: #f8f9fa;
             color: var(--pt-teal) !important;
         }
 
-        body {
-            padding-top: 80px !important;
+        .active-link {
+            color: #0d6efd !important;
+            background-color: #e7f1ff;
         }
 
-        /* Icon Wrapper & Badges */
+        body {
+            padding-top: 90px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Nav Icons & Badge */
         .nav-icon-link {
             position: relative;
             color: var(--pt-text-main);
             font-size: 1.2rem;
             padding: 8px 12px;
-            transition: 0.3s;
             text-decoration: none;
             display: flex;
             align-items: center;
-        }
-
-        .nav-icon-link:hover {
-            color: var(--pt-teal);
-            background: rgba(23, 162, 184, 0.05);
-            border-radius: 50%;
         }
 
         .badge-notify {
@@ -70,85 +71,65 @@
             background: #ff4757;
             color: white;
             font-size: 10px;
-            font-weight: bold;
             padding: 2px 5px;
             border-radius: 10px;
             border: 2px solid white;
         }
 
-        /* Dropdown Menu Custom */
+        .nav-divider {
+            border-left: 1px solid #dee2e6;
+            margin: 0 10px;
+            height: 24px;
+            align-self: center;
+        }
+
+        /* Dropdown Custom */
         .dropdown-menu {
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border-radius: 12px;
-            padding: 10px;
         }
 
-        .noti-dropdown {
-            width: 320px;
-            max-height: 450px;
-            overflow-y: auto;
+        .noti-dropdown { width: 320px; max-height: 450px; overflow-y: auto; }
+        
+        @("@")media (max-width: 991.98px) {
+            .nav-divider { display: none; }
+            .nav-icon-text { display: inline-block; margin-left: 10px; }
+            body { padding-top: 80px; }
         }
-
-        .noti-item {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: 0.2s;
-            display: block;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .noti-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .noti-item.unread {
-            background-color: #e8f7fa;
-        }
-
-        .no-caret::after {
-            display: none;
-        }
-
-       
-@@media (max-width: 991.98px) {
-    .nav-icon-text { display: inline-block; margin-left: 10px; font-size: 1rem; }
-    .nav-icon-link { border-radius: 8px !important; width: 100%; margin-bottom: 5px; }
-}
-
-@@media (min-width: 992px) {
-    .nav-icon-text { display: none; }
-}
+        @("@")media (min-width: 992px) {
             .nav-icon-text { display: none; }
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light fixed-top pt-navbar">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/images/logo.jpg" alt="Logo" class="main-logo-img">
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top pt-navbar border-bottom">
+            <div class="container-fluid px-lg-5">
+                <a class="navbar-brand fw-bold fs-3 text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    EasyRent
                 </a>
-                
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
+                            @* GIỮ NGUYÊN PHẦN ADMIN TỪ MAIN *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" data-bs-toggle="dropdown">Quản trị</a>
-                                    <ul class="dropdown-menu">
+                                    <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-user-shield me-1"></i> Quản trị viên
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                                         <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Quản lý danh mục</a></li>
                                         <li><a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">Quản lý tiện ích</a></li>
                                         <li><hr class="dropdown-divider"></li>
@@ -157,75 +138,82 @@
                                 </li>
                             }
 
+                            @* MENU CHỦ TRỌ *@
                             @if (User.IsInRole("Host"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-primary" href="#" data-bs-toggle="dropdown">Khu vực Chủ trọ</a>
-                                    <ul class="dropdown-menu">
+                                    <a class="nav-link dropdown-toggle text-primary" href="#" id="hostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-house me-1"></i> Khu vực Chủ trọ
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="hostDropdown">
                                         <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Create">Đăng tin mới</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Phòng của tôi</a></li>
-                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê</a></li>
+                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="Room" asp-action="Index">Danh sách phòng của tôi</a></li>
+                                        <li><a class="dropdown-item" asp-area="Host" asp-controller="RoomRequest" asp-action="Index">Yêu cầu thuê/ở ghép</a></li>
                                     </ul>
                                 </li>
                             }
                         }
                     </ul>
-                    
-                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-1 me-lg-3">
+
+                    @* ICONS TIỆN ÍCH CHO NGƯỜI DÙNG *@
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-2 me-lg-3">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <a class="nav-icon-link" asp-area="Customer" asp-controller="Favorite" asp-action="Index" title="Phòng đã lưu">
-                                <i class="far fa-heart"></i>
+                            <div class="nav-divider"></div>
+                            <a class="nav-icon-link" asp-area="Customer" asp-controller="Favorites" asp-action="Index" title="Tin đã lưu">
+                                <i class="fa-regular fa-heart"></i>
                                 <span class="nav-icon-text">Tin đã lưu</span>
                             </a>
 
-                            <a class="nav-icon-link" asp-area="Customer" asp-controller="MyRequest" asp-action="Index" title="Lịch sử yêu cầu">
-                                <i class="fas fa-history"></i>
-                                <span class="nav-icon-text">Lịch sử yêu cầu</span>
+                            <a class="nav-icon-link" asp-area="Customer" asp-controller="RoomRequests" asp-action="Index" title="Yêu cầu của tôi">
+                                <i class="fa-regular fa-paper-plane"></i>
+                                <span class="nav-icon-text">Yêu cầu của tôi</span>
                             </a>
 
+                            @* DROPDOWN THÔNG BÁO *@
                             <div class="dropdown">
-                                <a class="nav-icon-link dropdown-toggle no-caret" href="#" id="notiBtn" data-bs-toggle="dropdown">
-                                    <i class="far fa-bell"></i>
+                                <a class="nav-icon-link dropdown-toggle" href="#" id="notiBtn" data-bs-toggle="dropdown" style="after {display:none}">
+                                    <i class="fa-regular fa-bell"></i>
                                     <span class="badge-notify">2</span>
                                     <span class="nav-icon-text">Thông báo</span>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end noti-dropdown">
-                                    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
                                         <span class="fw-bold">Thông báo</span>
-                                        <a href="#" class="small text-decoration-none">Đánh dấu đã đọc</a>
+                                        <small class="text-primary cursor-pointer">Đã đọc tất cả</small>
                                     </div>
                                     <div class="noti-list">
-                                        <a href="#" class="noti-item unread">
+                                        <a href="#" class="dropdown-item py-2 border-bottom">
                                             <div class="small fw-bold">Yêu cầu được chấp nhận!</div>
-                                            <div class="small text-muted">Chủ trọ đã đồng ý xem phòng tại Quận 1...</div>
-                                            <div class="very-small text-primary mt-1" style="font-size: 11px;">2 phút trước</div>
-                                        </a>
-                                        <a href="#" class="noti-item">
-                                            <div class="small fw-bold">Phòng mới phù hợp</div>
-                                            <div class="small text-muted">Có 5 phòng mới đăng tại khu vực Bình Thạnh...</div>
-                                            <div class="very-small text-muted mt-1" style="font-size: 11px;">1 giờ trước</div>
+                                            <div class="small text-muted">Chủ trọ đã đồng ý xem phòng...</div>
                                         </a>
                                     </div>
-                                    <a href="#" class="d-block text-center p-2 small text-primary fw-bold text-decoration-none">Xem tất cả</a>
+                                    <a href="#" class="d-block text-center p-2 small text-primary text-decoration-none">Xem tất cả</a>
                                 </div>
                             </div>
                         }
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <partial name="_LoginPartial" />
-                    </div>
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="container-fluid p-0">
-        <main role="main">
+    <div class="container-fluid px-lg-5">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main>
     </div>
+
+    <footer class="border-top footer text-muted bg-light py-4 mt-auto">
+        <div class="container text-center">
+            <div class="mb-2">
+                <span class="fw-bold text-primary">EasyRent</span> - Hệ thống quản lý và tìm kiếm phòng trọ số 1.
+            </div>
+            &copy; 2026 - <strong>EasyRentProject</strong> - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Chính sách bảo mật</a>
+        </div>
+    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
