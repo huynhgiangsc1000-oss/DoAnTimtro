@@ -71,33 +71,31 @@
                             @* --- PHÂN HỆ ADMIN --- *@
                             @if (User.IsInRole("Admin"))
                             {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-danger fw-bold"
-                                       href="#"
-                                       id="adminDropdown"
-                                       role="button"
-                                       data-bs-toggle="dropdown"
-                                       aria-expanded="false">
-                                        <i class="fa-solid fa-user-shield me-1"></i> Quản trị viên
+                                <div class="nav-divider"></div>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" asp-area="Admin" asp-controller="Rooms" asp-action="Index">
+                                        <i class="bi bi-check2-square"></i> Duyệt tin
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">
-                                                Quản lý danh mục
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Amenity" asp-action="Index">
-                                                Quản lý tiện ích
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="RoomManagement" asp-action="Index">
-                                                Duyệt tin đăng
-                                            </a>
-                                        </li>
-                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                        <i class="bi bi-people"></i> Người dùng
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                                        <i class="bi bi-tags"></i> Danh mục
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Amenities" asp-action="Index">
+                                        <i class="bi bi-gear"></i> Tiện ích
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Reviews" asp-action="Index">
+                                        <i class="bi bi-chat-left-dots"></i> Bình luận
+                                    </a>
                                 </li>
                             }
 
