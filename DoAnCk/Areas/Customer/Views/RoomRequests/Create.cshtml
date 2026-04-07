@@ -1,71 +1,64 @@
 ﻿@model DoAnCk.Models.Entities.RoomRequest
 
 @{
-    ViewData["Title"] = "Gửi yêu cầu";
-    bool roomLocked = ViewBag.RoomIdLocked != null && (bool)ViewBag.RoomIdLocked;
-    string roomTitle = ViewBag.RoomTitle as string ?? "";
+    ViewData["Title"] = "Gửi yêu cầu thuê / ở ghép";
 }
 
-<div class="container page-shell">
-    <div class="form-shell">
-        <div class="page-header">
-            <h1 class="page-title">Gửi yêu cầu thuê / ở ghép</h1>
-            <p class="page-subtitle">Điền thông tin rõ ràng để chủ trọ dễ xem xét và phản hồi hơn.</p>
-        </div>
+<div class="container py-4">
+    <div class="mb-4">
+        <h1 class="fw-bold">Gửi yêu cầu thuê / ở ghép</h1>
+        <p class="text-muted mb-0">
+            Điền thông tin rõ ràng để chủ trọ dễ xem xét và phản hồi hơn.
+        </p>
+    </div>
 
-        <div class="modern-card">
-            <div class="modern-card-body">
-                <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
 
-                    @if (roomLocked)
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="RoomId" class="form-label">Chọn phòng</label>
+
+                    @if (ViewBag.RoomIdLocked != null && (bool)ViewBag.RoomIdLocked)
                     {
-                        <div class="mb-3">
-                            <label class="form-label">Phòng đã chọn</label>
-                            <input type="text" class="form-control" value="@roomTitle" readonly />
-                            <input asp-for="RoomId" type="hidden" />
-                        </div>
+                        <input type="hidden" asp-for="RoomId" />
+                        <input type="text" class="form-control" value="@ViewBag.RoomTitle" readonly />
                     }
                     else
                     {
-                        <div class="mb-3">
-                            <label asp-for="RoomId" class="form-label">Chọn phòng</label>
-                            <select asp-for="RoomId" class="form-select" asp-items="ViewBag.RoomId">
-                                <option value="">-- Chọn phòng --</option>
-                            </select>
-                            <span asp-validation-for="RoomId" class="text-danger"></span>
-                        </div>
+                        <select asp-for="RoomId" asp-items="ViewBag.RoomId" class="form-select">
+                            <option value="">-- Chọn phòng --</option>
+                        </select>
                     }
 
-                    <div class="mb-4">
-                        <label asp-for="Message" class="form-label">Nội dung yêu cầu</label>
-                        <textarea asp-for="Message"
-                                  class="form-control"
-                                  rows="6"
-                                  placeholder="Ví dụ: Em muốn thuê phòng từ đầu tháng tới, mong được hỗ trợ thêm thông tin về giá thuê, tiền cọc và nội quy."></textarea>
-                        <span asp-validation-for="Message" class="text-danger"></span>
-                    </div>
+                    <span asp-validation-for="RoomId" class="text-danger"></span>
+                </div>
 
-                    <div class="action-group" style="justify-content:flex-start;">
-                        <button type="submit" class="btn btn-primary px-4 py-2">
-                            <i class="fa-solid fa-paper-plane me-2"></i>Gửi yêu cầu
-                        </button>
+                <div class="mb-3">
+                    <label asp-for="Message" class="form-label">Nội dung yêu cầu</label>
+                    <textarea asp-for="Message"
+                              class="form-control"
+                              rows="6"
+                              placeholder="Ví dụ: Em muốn thuê phòng từ đầu tháng tới, mong được hỗ trợ thêm thông tin về giá thuê, tiền cọc và nội quy."></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
 
-                        <a asp-area="Customer"
-                           asp-controller="RoomRequests"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary px-4 py-2">
-                            Quay lại
-                        </a>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Gửi yêu cầu
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Quay lại
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

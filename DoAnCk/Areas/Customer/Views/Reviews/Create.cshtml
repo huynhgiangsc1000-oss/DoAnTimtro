@@ -4,45 +4,271 @@
     ViewData["Title"] = "Viết đánh giá";
 }
 
-<div class="review-form-page">
-    <div class="review-form-card">
-        <div class="review-form-header">
-            <h1>Viết đánh giá</h1>
-            <p>@ViewBag.RoomTitle</p>
+<style>
+    .review-page {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 16px;
+    }
+
+    .review-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid #eef1f4;
+    }
+
+    .review-header {
+        padding: 28px 32px 18px;
+        border-bottom: 1px solid #f1f3f5;
+        background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+    }
+
+    .review-title {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .review-subtitle {
+        margin: 8px 0 0;
+        color: #6b7280;
+        font-size: 15px;
+    }
+
+    .review-body {
+        padding: 28px 32px 32px;
+    }
+
+    .review-alert {
+        background: #fff8e1;
+        color: #8a6d1d;
+        border: 1px solid #ffe08a;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 22px;
+        font-size: 14px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .rating-wrap {
+        margin-bottom: 22px;
+    }
+
+    .rating {
+        direction: rtl;
+        display: inline-flex;
+        gap: 6px;
+    }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 38px;
+            line-height: 1;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: transform 0.15s ease, color 0.2s ease;
+        }
+
+            .rating label:hover,
+            .rating label:hover ~ label {
+                color: #f59e0b;
+                transform: scale(1.06);
+            }
+
+        .rating input:checked ~ label {
+            color: #f59e0b;
+        }
+
+    .rating-note {
+        margin-top: 10px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .review-textarea {
+        min-height: 170px;
+        border-radius: 14px;
+        border: 1px solid #dbe2ea;
+        padding: 14px 16px;
+        font-size: 15px;
+        resize: vertical;
+        box-shadow: none;
+    }
+
+        .review-textarea:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .12);
+        }
+
+    .action-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .btn-submit-review {
+        background: #0d6efd;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 11px 22px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+        .btn-submit-review:hover {
+            background: #0b5ed7;
+        }
+
+    .btn-cancel-review {
+        background: #fff;
+        color: #374151;
+        border: 1px solid #ced4da;
+        border-radius: 12px;
+        padding: 11px 22px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+        .btn-cancel-review:hover {
+            background: #f8f9fa;
+            color: #111827;
+        }
+
+    .field-validation-error,
+    .validation-summary-errors,
+    .text-danger {
+        font-size: 14px;
+    }
+
+    @@media (max-width: 576px) {
+        .review-header,
+        .review-body {
+            padding: 22px 18px;
+        }
+
+        .review-title {
+            font-size: 26px;
+        }
+
+        .rating label {
+            font-size: 34px;
+        }
+
+        .action-group {
+            flex-direction: column;
+        }
+
+        .btn-submit-review,
+        .btn-cancel-review {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="review-page">
+    <div class="review-card">
+        <div class="review-header">
+            <h1 class="review-title">Viết đánh giá</h1>
+            <p class="review-subtitle">@ViewBag.RoomTitle</p>
         </div>
 
-        <form asp-action="Create" method="post">
-            <input type="hidden" asp-for="RoomId" />
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="review-body">
+            <div class="review-alert">
+                Chỉ người đã được chấp nhận thuê hoặc ở ghép mới có thể đánh giá.
+            </div>
 
-            <div class="rating-section">
-                <label class="form-label">Chấm điểm phòng</label>
-                <div class="star-rating">
-                    @for (int i = 5; i >= 1; i--)
-                    {
-                        <input type="radio" id="star-@i" name="Rating" value="@i" @(Model.Rating == i ? "checked" : "") />
-                        <label for="star-@i" title="@i sao">★</label>
-                    }
+            <form asp-action="Create" method="post">
+                <input type="hidden" asp-for="RoomId" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="rating-wrap">
+                    <label class="form-label d-block">Chấm điểm phòng</label>
+
+                    <div class="rating">
+                        <input type="radio" asp-for="Rating" id="star5" value="5" />
+                        <label for="star5" title="5 sao">★</label>
+
+                        <input type="radio" asp-for="Rating" id="star4" value="4" />
+                        <label for="star4" title="4 sao">★</label>
+
+                        <input type="radio" asp-for="Rating" id="star3" value="3" />
+                        <label for="star3" title="3 sao">★</label>
+
+                        <input type="radio" asp-for="Rating" id="star2" value="2" />
+                        <label for="star2" title="2 sao">★</label>
+
+                        <input type="radio" asp-for="Rating" id="star1" value="1" />
+                        <label for="star1" title="1 sao">★</label>
+                    </div>
+
+                    <div id="ratingText" class="rating-note">Hãy chọn số sao phù hợp với trải nghiệm của bạn.</div>
+                    <span asp-validation-for="Rating" class="text-danger"></span>
                 </div>
-                <span asp-validation-for="Rating" class="text-danger"></span>
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="Comment" class="form-label">Cảm nhận của bạn</label>
-                <textarea asp-for="Comment" class="form-control review-textarea" rows="6"
-                          placeholder="Hãy chia sẻ trải nghiệm thực tế của bạn về phòng, vị trí, chủ trọ, tiện nghi..."></textarea>
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Comment" class="form-label">Cảm nhận của bạn</label>
+                    <textarea asp-for="Comment"
+                              class="form-control review-textarea"
+                              rows="6"
+                              placeholder="Hãy chia sẻ trải nghiệm thực tế của bạn về phòng, vị trí, chủ trọ, tiện nghi..."></textarea>
+                    <span asp-validation-for="Comment" class="text-danger"></span>
+                </div>
 
-            <div class="action-group">
-                <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
-                <a asp-area="Customer"
-                   asp-controller="RoomRequests"
-                   asp-action="Index"
-                   class="btn-cancel-review">
-                    Quay lại
-                </a>
-            </div>
-        </form>
+                <div class="action-group">
+                    <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
+                    <a asp-area="Customer"
+                       asp-controller="RoomRequests"
+                       asp-action="Index"
+                       class="btn-cancel-review">
+                        Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const stars = document.querySelectorAll('.rating input');
+        const ratingText = document.getElementById('ratingText');
+
+        function updateRatingText(value) {
+            if (!value) {
+                ratingText.textContent = 'Hãy chọn số sao phù hợp với trải nghiệm của bạn.';
+                return;
+            }
+
+            ratingText.textContent = 'Bạn đã chọn ' + value + ' sao.';
+        }
+
+        stars.forEach(star => {
+            if (star.checked) {
+                updateRatingText(star.value);
+            }
+
+            star.addEventListener('change', function () {
+                updateRatingText(this.value);
+            });
+        });
+    </script>
+}

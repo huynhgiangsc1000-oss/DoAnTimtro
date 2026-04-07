@@ -77,7 +77,7 @@ namespace DoAnCk.Areas.Customer.Controllers
             }
 
             var rooms = await _context.Rooms.ToListAsync();
-            ViewData["RoomId"] = new SelectList(rooms, "Id", "Title");
+            ViewBag.RoomId = new SelectList(rooms, "Id", "Title");
             ViewBag.RoomIdLocked = false;
 
             return View(new RoomRequest
@@ -97,7 +97,7 @@ namespace DoAnCk.Areas.Customer.Controllers
             var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomRequest.RoomId);
             if (room == null)
             {
-                ModelState.AddModelError("RoomId", "Phòng không tồn tại.");
+                ModelState.AddModelError("RoomId", "Vui lòng chọn phòng hợp lệ.");
             }
 
             var hasPendingOrAccepted = await _context.RoomRequests.AnyAsync(r =>
@@ -118,7 +118,7 @@ namespace DoAnCk.Areas.Customer.Controllers
             if (!ModelState.IsValid)
             {
                 var rooms = await _context.Rooms.ToListAsync();
-                ViewData["RoomId"] = new SelectList(rooms, "Id", "Title", roomRequest.RoomId);
+                ViewBag.RoomId = new SelectList(rooms, "Id", "Title", roomRequest.RoomId);
                 ViewBag.RoomTitle = room?.Title;
                 ViewBag.RoomIdLocked = room != null;
 
