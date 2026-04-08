@@ -1,31 +1,296 @@
-html {
-  font-size: 14px;
+﻿v /* --- TIER STYLING --- */
+.hero-wrapper {
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1400');
+    background-size: cover;
+    background-position: center;
+    padding: 100px 0;
+    border-radius: 0 0 50px 50px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+/* --- BIG BUTTON VIEW DETAIL --- */
+.btn-view-detail {
+    background: #007bff;
+    color: white !important;
+    padding: 12px 0;
+    font-weight: 800;
+    transition: all 0.3s;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    .btn-view-detail:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+    }
+
+/* --- PRICE TAGS & CARDS --- */
+.price-overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: #ff4757;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.room-card {
+    transition: transform 0.3s ease;
 }
 
-body {
-  margin-bottom: 60px;
+    .room-card:hover {
+        transform: scale(1.03);
+    }
+
+/* --- BLOG & FOOTER --- */
+.blog-item {
+    transition: all 0.3s;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+    .blog-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    transition: 0.3s;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    .social-icon:hover {
+        background: #007bff;
+        transform: rotate(360deg);
+    }
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #007bff;
+    margin: 15px auto 0;
 }
+/* Nút lọc quận */
+.btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+    .btn-outline-primary:hover, .btn-primary {
+        background-color: #007bff !important;
+        color: white !important;
+        box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+    }
+
+/* Card nhỏ hơn cho danh sách quận */
+.room-card .card-body h6 {
+    font-size: 0.95rem;
+    height: 2.4em; /* Giới hạn 2 dòng tiêu đề */
+    overflow: hidden;
+}
+/* Quản lý Card cho Host */
+.room-manage-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+    .room-manage-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+
+/* Hiển thị tiêu đề tối đa 2 dòng */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.8em;
+}
+
+/* Nút thao tác trong quản lý */
+.room-manage-card .btn-light {
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+    .room-manage-card .btn-light:hover {
+        background-color: #e9ecef;
+        border-color: #ddd;
+    }
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-weight: 600;
+}
+/* ============================================================
+   HỆ THỐNG QUẢN LÝ TIN ĐĂNG (DÀNH CHO HOST)
+   ============================================================ */
+
+/* 1. Tùy chỉnh bảng hàng ngang */
+.table-responsive {
+    border-radius: 12px;
+    background: #fff;
+}
+
+.table thead th {
+    background-color: #f9fafb;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #4b5563;
+    padding: 16px;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* 2. Ảnh thu nhỏ chuyên nghiệp */
+.img-thumbnail-custom {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.table tr:hover .img-thumbnail-custom {
+    transform: scale(1.05);
+}
+
+/* 3. Tiêu đề và link */
+.title-link {
+    font-weight: 600;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: block;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+    .title-link:hover {
+        color: #007bff;
+    }
+
+/* 4. Trạng thái Badge (Soft style giống ảnh 2) */
+.badge-soft-success {
+    background-color: #def7ec;
+    color: #03543f;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-soft-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 5. Nhóm Icon thao tác (Sát ảnh mẫu nhất) */
+.btn-action-group {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.btn-icon-custom {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+/* Hiệu ứng màu khi hover vào từng Icon */
+.btn-view:hover {
+    color: #fff;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-edit:hover {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-image:hover {
+    color: #fff;
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-delete:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* 6. Hiệu ứng dòng bảng */
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+/* --- CHI TIẾT PHÒNG (DETAILS PAGE) --- */
+.main-image-container {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.description-content {
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #f1f1f1;
+    white-space: pre-line;
+}
+
+/* Hiệu ứng bo góc cho Iframe bản đồ */
+iframe {
+    filter: grayscale(0.2) contrast(1.1);
+}
+
+/* Sidebar liên hệ */
+.btn-success {
+    background-color: #00b98e;
+    border-color: #00b98e;
+}
+
+    .btn-success:hover {
+        background-color: #009673;
+    }

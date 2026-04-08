@@ -6,6 +6,8 @@ namespace DoAnCk.Models.Entities
     public class User : IdentityUser
     {
         public string FullName { get; set; }
+        public string? Address { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
         public string? Bio { get; set; } // Giới thiệu bản thân để tìm người ở ghép
         public string? AvatarUrl { get; set; }
 

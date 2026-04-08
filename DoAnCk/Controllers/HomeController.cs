@@ -19,29 +19,25 @@ namespace DoAnCk.Controllers
         }
 
         // Hiển thị danh sách phòng trọ mới nhất tại trang chủ
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string district)
         {
-            try
-            {
-                // Lấy danh sách phòng, Include bảng Images để hiển thị ảnh đại diện
-                // Sử dụng .AsNoTracking() để tăng tốc độ load trang cho dữ liệu chỉ đọc
-                var rooms = await _context.Rooms
-                    .Include(r => r.RoomImages)
-                    .Include(r => r.Category) // Lấy thông tin danh mục nếu cần hiển thị
-                    .OrderByDescending(r => r.CreatedDate)
-                    .Take(12) // Giới hạn hiển thị 12 phòng mới nhất
-                    .AsNoTracking()
-                    .ToListAsync();
+            // Lấy tất cả phòng đã duyệt
+            var query = _context.Rooms
+                .Include(r => r.Category)
+                .Include(r => r.RoomImages)
+                .Where(r => r.IsApproved == true)
+                .AsQueryable();
 
-                return View(rooms);
-            }
-            catch (Exception ex)
+            // Nếu người dùng chọn Quận, thực hiện lọc theo địa chỉ
+            if (!string.IsNullOrEmpty(district))
             {
-                _logger.LogError(ex, "Lỗi khi tải danh sách phòng trọ tại trang chủ.");
-                return View(new List<Room>());
+                query = query.Where(r => r.Address.Contains(district));
             }
+
+            var rooms = await query.OrderByDescending(r => r.CreatedDate).ToListAsync();
+
+            return View(rooms);
         }
-
         // Xem chi tiết một phòng trọ
         public async Task<IActionResult> Details(int? id)
         {

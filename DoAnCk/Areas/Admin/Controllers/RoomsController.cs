@@ -17,21 +17,42 @@ namespace DoAnCk.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/Rooms
+        // Trang quản lý chính của Admin
         public async Task<IActionResult> Index()
         {
-            // Lấy toàn bộ danh sách kèm theo Ảnh, Danh mục và Thông tin người đăng
             var rooms = await _context.Rooms
                 .Include(r => r.Category)
                 .Include(r => r.User)
                 .Include(r => r.RoomImages)
                 .OrderByDescending(r => r.CreatedDate)
                 .ToListAsync();
-
             return View(rooms);
         }
 
-        // POST: Admin/Rooms/Approve/5
+        // --- BỔ SUNG: XEM CHI TIẾT PHÒNG (Dành cho Admin) ---
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var room = await _context.Rooms
+                .Include(r => r.Category)
+                .Include(r => r.User)
+                .Include(r => r.RoomImages)
+                .Include(r => r.RoomAmenities).ThenInclude(ra => ra.Amenity)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            return View(room);
+        }
+
+        // Chức năng Duyệt tin
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
@@ -40,13 +61,16 @@ namespace DoAnCk.Areas.Admin.Controllers
             if (room == null) return NotFound();
 
             room.IsApproved = true;
+            room.Status = 1; // Chuyển sang trạng thái 1: "Đang hiển thị"
+
             _context.Update(room);
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Đã phê duyệt tin đăng!";
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Admin/Rooms/Reject/5 (Từ chối duyệt)
+        // Chức năng Từ chối/Gỡ tin
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id)
@@ -55,22 +79,27 @@ namespace DoAnCk.Areas.Admin.Controllers
             if (room == null) return NotFound();
 
             room.IsApproved = false;
+            room.Status = 0; // Quay về 0: "Chờ duyệt"
+
             _context.Update(room);
             await _context.SaveChangesAsync();
 
+            TempData["Warning"] = "Đã gỡ/từ chối tin đăng!";
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Admin/Rooms/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // Xóa vĩnh viễn (nếu tin vi phạm chính sách)
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room != null)
             {
+                // Xóa ảnh vật lý nếu cần thiết trước khi xóa record
                 _context.Rooms.Remove(room);
                 await _context.SaveChangesAsync();
+                TempData["Error"] = "Đã xóa vĩnh viễn tin đăng!";
             }
             return RedirectToAction(nameof(Index));
         }

@@ -1,60 +1,67 @@
 ﻿@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "MyRequestController";
-}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Lịch sử gửi yêu cầu</h2>
+        <a href="/" class="btn btn-primary btn-sm">Tiếp tục tìm phòng</a>
+    </div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Room)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sender)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Message)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RequestDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Room.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sender.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Message)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RequestDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Phòng trọ</th>
+                        <th>Lời nhắn</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.RoomId" class="text-decoration-none fw-bold">
+                                    @item.Room.Title
+                                </a>
+                            </td>
+                            <td class="text-truncate" style="max-width: 200px;">@item.Message</td>
+                            <td>@item.RequestDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @if ((int)item.Status == 0)
+                                {
+                                    <span class="badge bg-warning text-dark">Đang chờ</span>
+                                }
+                                else if ((int)item.Status == 1)
+                                {
+                                    <span class="badge bg-success">Đã liên hệ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Đã từ chối</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (item.Status == 0)
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy yêu cầu này?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

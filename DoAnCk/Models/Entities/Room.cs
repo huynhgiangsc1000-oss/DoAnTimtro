@@ -26,6 +26,7 @@ namespace DoAnCk.Models.Entities
         public double Longitude { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime? UpdatedDate { get; set; }
 
         // --- BỔ SUNG: TRẠNG THÁI CHI TIẾT ---
         // Thay vì chỉ dùng IsApproved, dùng Status để quản lý: 0: Chờ duyệt, 1: Đang hiển thị, 2: Đã cho thuê

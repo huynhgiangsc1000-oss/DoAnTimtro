@@ -1,174 +1,184 @@
 @model DoAnCk.Models.Entities.Room
 
-<div class="container mt-4 mb-5">
-    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-        @* HEADER: Cập nhật Status và ViewCount *@
-        <div class="card-header bg-info text-white py-3 d-flex justify-content-between align-items-center border-0">
-            <div>
-                <h4 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>@Model.Title</h4>
-                <small class="opacity-75"><i class="fas fa-eye me-1"></i> Lượt xem: @Model.ViewCount</small>
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active">@Model.Category?.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            @* Slide ảnh phòng *@
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <img src="@(Model.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
+                     class="w-100 object-fit-cover" style="height: 450px;" />
             </div>
-            <div class="d-flex gap-2">
-                @if (Model.Status == 1)
-                {
-                    <span class="badge bg-success shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i> Đang hiển thị</span>
-                }
-                else if (Model.Status == 2)
-                {
-                    <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-door-closed me-1"></i> Đã cho thuê</span>
-                }
-                else
-                {
-                    <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i> Chờ duyệt</span>
-                }
-            </div>
-        </div>
 
-        <div class="card-body p-4 bg-white">
-            <div class="row g-4">
-                <div class="col-md-7">
-                    @* Thông tin cơ bản *@
-                    <div class="p-4 bg-light rounded-4 shadow-sm border-start border-info border-5">
-                        <div class="row mb-3">
-                            <div class="col-sm-4 text-muted"><i class="fas fa-tag me-2"></i>Giá thuê:</div>
-                            <div class="col-sm-8 text-danger fw-bold fs-4">@Model.Price.ToString("N0") <small class="fs-6">VNĐ/tháng</small></div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 text-muted"><i class="fas fa-expand-arrows-alt me-2"></i>Diện tích:</div>
-                            <div class="col-sm-8 fw-bold">@Model.Area m²</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 text-muted"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ:</div>
-                            <div class="col-sm-8 text-primary fw-medium">@Model.Address</div>
-                        </div>
-                    </div>
-
-                    @* TIỆN ÍCH: Lấy Icon động từ Database *@
-                    <h5 class="mt-5 mb-3 text-dark fw-bold"><i class="fas fa-concierge-bell me-2 text-info"></i>Tiện ích đi kèm</h5>
-                    <div class="row g-3 mb-4">
-                        @if (Model.RoomAmenities != null && Model.RoomAmenities.Any())
-                        {
-                            foreach (var item in Model.RoomAmenities)
-                            {
-                                <div class="col-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-2 border rounded-3 bg-white shadow-xs hover-info transition-all">
-                                        <i class="@(string.IsNullOrEmpty(item.Amenity?.IconClass) ? "fas fa-check-circle" : item.Amenity.IconClass) text-success me-2"></i>
-                                        <span class="small fw-bold text-secondary">@item.Amenity?.Name</span>
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="col-12"><p class="text-muted small fst-italic">Chưa cập nhật tiện ích.</p></div>
-                        }
-                    </div>
-
-                    @* Mô tả *@
-                    <h5 class="mt-4 mb-3 text-dark fw-bold"><i class="fas fa-align-left me-2 text-info"></i>Mô tả chi tiết</h5>
-                    <div class="text-secondary p-3 bg-light rounded-3 border" style="white-space: pre-line; line-height: 1.8;">
-                        @Model.Description
-                    </div>
-
-                    @* BẢN ĐỒ: Hoàn chỉnh với dữ liệu động *@
-                    <h5 class="mt-5 mb-3 text-dark fw-bold"><i class="fas fa-map-marked-alt me-2 text-info"></i>Vị trí thực tế</h5>
-                    <div class="shadow rounded-4 overflow-hidden border">
-                        @{
-                            // Mã hóa địa chỉ để truyền vào URL của Google Maps
-                            var encodedLoc = System.Net.WebUtility.UrlEncode(Model.Address);
-                            var mapSrc = $"https://maps.google.com/maps?q={encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed";
-                        }
-                        <div class="ratio ratio-16x9">
-                            <iframe src="@mapSrc"
-                                    frameborder="0"
-                                    style="border:0;"
-                                    allowfullscreen
-                                    loading="lazy">
-                            </iframe>
-                        </div>
-                        <div class="bg-light p-2 text-center border-top">
-                            <a href="https://www.google.com/maps/search/?api=1&query=@encodedLoc" target="_blank" class="btn btn-sm btn-link text-decoration-none fw-bold">
-                                <i class="fas fa-external-link-alt me-1"></i> Xem trên Google Maps
-                            </a>
-                        </div>
-                    </div>
+            @* Tiêu đề và giá *@
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="fw-bold mb-1">@Model.Title</h2>
+                    <p class="text-muted"><i class="fas fa-map-marker-alt text-danger me-2"></i>@Model.Address</p>
                 </div>
+                <button class="btn btn-outline-secondary rounded-pill shadow-sm">
+                    <i class="far fa-heart me-1"></i> Lưu tin
+                </button>
+            </div>
 
-                <div class="col-md-5">
-                    @* Carousel ảnh *@
-                    <h5 class="mb-3 text-dark fw-bold"><i class="fas fa-images me-2 text-info"></i>Hình ảnh thực tế</h5>
-                    @if (Model.RoomImages != null && Model.RoomImages.Any())
+            @* Thông số cơ bản *@
+            <div class="row g-3 mb-4 border-top border-bottom py-3 mx-0 bg-light rounded-3">
+                <div class="col-6 col-md-4">
+                    <span class="text-muted d-block small uppercase fw-bold">Giá thuê</span>
+                    <b class="text-danger fs-4">@Model.Price.ToString("N0") đ/tháng</b>
+                </div>
+                <div class="col-6 col-md-4 border-start">
+                    <span class="text-muted d-block small uppercase fw-bold">Diện tích</span>
+                    <b class="fs-4 text-dark">@Model.Area m²</b>
+                </div>
+                <div class="col-6 col-md-4 border-start d-none d-md-block">
+                    <span class="text-muted d-block small uppercase fw-bold">Trạng thái</span>
+                    <b class="text-success fs-4">Đang trống</b>
+                </div>
+            </div>
+
+            @* Mô tả chi tiết *@
+            <h5 class="fw-bold mb-3 border-start border-4 border-primary ps-2">Thông tin mô tả</h5>
+            <div class="mb-4 text-secondary" style="line-height: 1.8; text-align: justify;">
+                @Html.Raw(Model.Description?.Replace("\n", "<br/>"))
+            </div>
+
+            @* Tiện ích *@
+            <h5 class="fw-bold mb-3 border-start border-4 border-primary ps-2">Tiện ích đi kèm</h5>
+            <div class="row mb-5">
+                @if (Model.RoomAmenities != null && Model.RoomAmenities.Any())
+                {
+                    foreach (var am in Model.RoomAmenities)
                     {
-                        <div id="roomImagesCarousel" class="carousel slide shadow-sm rounded-4 overflow-hidden border" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                @for (int i = 0; i < Model.RoomImages.Count(); i++)
-                                {
-                                    var img = Model.RoomImages.ElementAt(i);
-                                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                                        <img src="@img.ImageUrl" class="d-block w-100" style="height: 350px; object-fit: cover;" alt="Room Image">
-                                    </div>
-                                }
+                        <div class="col-md-4 col-6 mb-2">
+                            <div class="p-2 border rounded-3 bg-white">
+                                <i class="fas fa-check-circle text-success me-2"></i>@am.Amenity.Name
                             </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                            </button>
                         </div>
                     }
-
-                    @* Thông tin chủ trọ & Nút hành động nhanh *@
-                    <div class="card mt-4 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <div class="card-body p-4 text-center bg-light">
-                            <img src="https://ui-avatars.com/api/?name=@(System.Net.WebUtility.UrlEncode(Model.User?.FullName))&background=0dcaf0&color=fff" class="rounded-circle shadow-sm mb-3" width="70">
-                            <h6 class="fw-bold">@Model.User?.FullName</h6>
-
-                            <div class="d-grid gap-2 mt-3">
-                                @if (Model.Status == 1)
-                                {
-                                    <form asp-action="ToggleStatus" method="post">
-                                        <input type="hidden" name="id" value="@Model.Id" />
-                                        <input type="hidden" name="status" value="2" />
-                                        <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold shadow-sm">
-                                            <i class="fas fa-door-closed me-2"></i>Đánh dấu Đã cho thuê
-                                        </button>
-                                    </form>
-                                }
-                                <a href="tel:@Model.PhoneNumber" class="btn btn-outline-info rounded-pill fw-bold border-2 shadow-sm">
-                                    <i class="fas fa-phone-alt me-2"></i>@Model.PhoneNumber
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
 
-        @* FOOTER NÚT ĐIỀU HƯỚNG *@
-        <div class="card-footer bg-white py-4 d-flex justify-content-center gap-3 border-top">
-            <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-bold">
-                <i class="fas fa-arrow-left me-2"></i>Quay lại
-            </a>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning px-4 py-2 rounded-pill fw-bold shadow-sm">
-                <i class="fas fa-edit me-2"></i>Chỉnh sửa
-            </a>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow rounded-4 p-4 text-center sticky-top" style="top: 20px; z-index: 100;">
+
+                @* Avatar chủ trọ *@
+                <div class="mb-3 position-relative d-inline-block mx-auto">
+                    <img src="@(string.IsNullOrEmpty(Model.User?.AvatarUrl) ? "/images/default-avatar.png" : Model.User.AvatarUrl)"
+                         class="rounded-circle shadow-sm border border-3 border-light"
+                         width="100" height="100" style="object-fit: cover;">
+                    <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"
+                          style="width: 18px; height: 18px;"></span>
+                </div>
+
+                @* Tên chủ trọ *@
+                <h5 class="fw-bold mb-0">@((Model.User?.FullName) ?? "Chủ phòng")</h5>
+                <p class="text-muted small mb-3">Thành viên từ 2026</p>
+                <div class="badge bg-success-subtle text-success px-3 py-2 mb-4 rounded-pill">
+                    <i class="fas fa-shield-alt me-1"></i> Đối tác đã xác thực
+                </div>
+
+                @* NHÓM NÚT LIÊN HỆ CHÍNH *@
+                <div class="d-grid gap-3">
+                    @if (Model.User != null && !string.IsNullOrEmpty(Model.User.PhoneNumber))
+                    {
+                        @* Nút gọi điện - Click là gọi *@
+                        <a href="tel:@Model.User.PhoneNumber" class="btn btn-success btn-lg fw-bold py-3 shadow-sm rounded-3 ripple">
+                            <i class="fas fa-phone-alt me-2"></i> @Model.User.PhoneNumber
+                        </a>
+
+                        @* Nút Zalo *@
+                        <a href="https://zalo.me/@Model.User.PhoneNumber" target="_blank" class="btn btn-outline-primary fw-bold py-2 rounded-3">
+                            <i class="fas fa-comment-dots me-2"></i> Nhắn tin Zalo
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning py-2 mb-0 small">
+                            Chủ phòng chưa cập nhật SĐT liên hệ.
+                        </div>
+                    }
+                </div>
+
+                @* Thông tin phụ của chủ trọ *@
+                <div class="text-start mt-4 pt-3 border-top">
+                    <div class="d-flex mb-2">
+                        <i class="fas fa-map-marker-alt text-danger mt-1 me-2"></i>
+                        <span class="small"><b>Địa chỉ:</b> @(Model.User?.Address ?? "Liên hệ trực tiếp")</span>
+                    </div>
+                    <div class="d-flex">
+                        <i class="fas fa-reply text-primary mt-1 me-2"></i>
+                        <span class="small"><b>Phản hồi:</b> Rất nhanh (trong vài phút)</span>
+                    </div>
+                </div>
+
+                @* Nút Gửi yêu cầu qua hệ thống *@
+                <button class="btn btn-primary w-100 mt-4 py-2 fw-bold rounded-pill shadow"
+                        data-bs-toggle="modal" data-bs-target="#requestModal">
+                    Gửi yêu cầu xem phòng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Gửi Yêu Cầu *@
+<div class="modal fade" id="requestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <form asp-area="Customer" asp-controller="RoomRequests" asp-action="SendRequest" method="post">
+                <input type="hidden" name="roomId" value="@Model.Id" />
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold">Yêu cầu xem phòng trực tiếp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Lời nhắn gửi chủ trọ</label>
+                        <textarea name="message" class="form-control border-2 rounded-3" rows="4"
+                                  placeholder="Chào bạn, mình muốn xem phòng vào sáng thứ 7 này được không?"></textarea>
+                    </div>
+                    <p class="text-muted small italic">
+                        <i class="fas fa-info-circle me-1"></i> Thông báo sẽ được gửi ngay đến chủ phòng.
+                    </p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">Gửi yêu cầu ngay</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <style>
-    .transition-all {
+    .sticky-top {
         transition: all 0.3s ease;
     }
 
-    .hover-info:hover {
-        border-color: #0dcaf0 !important;
-        transform: translateY(-2px);
-        background-color: #f0faff !important;
+    .object-fit-cover {
+        object-fit: cover;
     }
 
-    .shadow-xs {
-        shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+
+    .btn-lg {
+        font-size: 1.25rem;
+    }
+
+    .bg-success-subtle {
+        background-color: #d1e7dd;
     }
 </style>
