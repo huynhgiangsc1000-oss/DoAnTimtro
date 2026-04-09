@@ -1,9 +1,55 @@
-﻿@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
+﻿@using DoAnCk.Models.Entities
+@model IEnumerable<DoAnCk.Models.Entities.RoomRequest>
 
-<div class="container mt-4">
+@{
+    var total = Model?.Count() ?? 0;
+    var pending = Model?.Count(x => x.Status == RequestStatus.Pending) ?? 0;
+    var accepted = Model?.Count(x => x.Status == RequestStatus.Accepted) ?? 0;
+    var rejected = Model?.Count(x => x.Status == RequestStatus.Rejected) ?? 0;
+}
+
+<div class="container mt-4 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Lịch sử gửi yêu cầu</h2>
+        <div>
+            <h2 class="fw-bold mb-1">Yêu cầu thuê phòng của tôi</h2>
+            <p class="text-muted mb-0">Theo dõi các yêu cầu bạn đã gửi đến chủ trọ.</p>
+        </div>
         <a href="/" class="btn btn-primary btn-sm">Tiếp tục tìm phòng</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng yêu cầu</div>
+                    <div class="fs-4 fw-bold">@total</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Đang chờ</div>
+                    <div class="fs-4 fw-bold text-warning">@pending</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Đã chấp nhận</div>
+                    <div class="fs-4 fw-bold text-success">@accepted</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Đã từ chối</div>
+                    <div class="fs-4 fw-bold text-danger">@rejected</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0">
@@ -12,51 +58,83 @@
                 <thead class="table-light">
                     <tr>
                         <th>Phòng trọ</th>
-                        <th>Lời nhắn</th>
+                        <th>Lời nhắn của bạn</th>
                         <th>Ngày gửi</th>
                         <th>Trạng thái</th>
+                        <th>Phản hồi chủ trọ</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="min-width:220px;">
+                                    <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.RoomId" class="text-decoration-none fw-bold">
+                                        @(item.Room?.Title ?? "Phòng trọ")
+                                    </a>
+                                </td>
+
+                                <td class="text-truncate" style="max-width: 220px;">
+                                    @item.Message
+                                </td>
+
+                                <td>@item.RequestDate.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                <td>
+                                    @if (item.Status == RequestStatus.Pending)
+                                    {
+                                        <span class="badge bg-warning text-dark">Đang chờ</span>
+                                    }
+                                    else if (item.Status == RequestStatus.Accepted)
+                                    {
+                                        <span class="badge bg-success">Đã chấp nhận</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã từ chối</span>
+                                    }
+                                </td>
+
+                                <td style="max-width: 240px;">
+                                    @if (!string.IsNullOrWhiteSpace(item.Note))
+                                    {
+                                        <span>@item.Note</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">Chưa có phản hồi</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        @if (item.Status == RequestStatus.Pending)
+                                        {
+                                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy yêu cầu này?')">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Hủy yêu cầu">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>
-                                <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.RoomId" class="text-decoration-none fw-bold">
-                                    @item.Room.Title
-                                </a>
-                            </td>
-                            <td class="text-truncate" style="max-width: 200px;">@item.Message</td>
-                            <td>@item.RequestDate.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>
-                                @if ((int)item.Status == 0)
-                                {
-                                    <span class="badge bg-warning text-dark">Đang chờ</span>
-                                }
-                                else if ((int)item.Status == 1)
-                                {
-                                    <span class="badge bg-success">Đã liên hệ</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">Đã từ chối</span>
-                                }
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    @if (item.Status == 0)
-                                    {
-                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy yêu cầu này?')">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    }
-                                </div>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted mb-2">Bạn chưa gửi yêu cầu thuê phòng nào.</div>
+                                <a href="/" class="btn btn-primary btn-sm">Tìm phòng ngay</a>
                             </td>
                         </tr>
                     }
@@ -64,4 +142,4 @@
             </table>
         </div>
     </div>
-</div>
+</div>s

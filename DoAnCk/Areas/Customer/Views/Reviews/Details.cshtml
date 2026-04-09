@@ -4,39 +4,30 @@
     ViewData["Title"] = "Chi tiết đánh giá";
 }
 
-<div class="review-detail-page">
-    <div class="review-detail-card">
-        <h1>Chi tiết đánh giá</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="mb-3">Chi tiết đánh giá</h2>
 
-        <div class="detail-block">
-            <span class="detail-label">Phòng</span>
-            <div class="detail-value">@Model.Room?.Title</div>
-        </div>
-
-        <div class="detail-block">
-            <span class="detail-label">Số sao</span>
-            <div class="rating-stars">
+            <p><strong>Phòng:</strong> @Model.Room?.Title</p>
+            <p><strong>Ngày đánh giá:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            <p>
+                <strong>Số sao:</strong>
                 @for (int i = 1; i <= 5; i++)
                 {
-                    <span class="@(i <= Model.Rating ? "star-filled" : "star-empty")">★</span>
+                    <span style="font-size:20px; color:@(i <= Model.Rating ? "#f59e0b" : "#d1d5db")">★</span>
                 }
+            </p>
+            <p><strong>Nội dung:</strong></p>
+            <div class="border rounded p-3 bg-light">
+                @Model.Comment
             </div>
-        </div>
 
-        <div class="detail-block">
-            <span class="detail-label">Ngày tạo</span>
-            <div class="detail-value">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
-        </div>
-
-        <div class="detail-block">
-            <span class="detail-label">Nội dung</span>
-            <div class="detail-comment">@Model.Comment</div>
-        </div>
-
-        <div class="detail-actions">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">Sửa</a>
-            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-delete">Xóa</a>
-            <a asp-action="Index" class="btn-back">Quay lại</a>
+            <div class="mt-4 d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sửa</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Xóa</a>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
         </div>
     </div>
 </div>

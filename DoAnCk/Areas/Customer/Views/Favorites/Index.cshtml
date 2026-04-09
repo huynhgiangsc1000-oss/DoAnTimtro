@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<DoAnCk.Models.Entities.Favorite>
 
 <div class="container mt-4">
-    <h3 class="fw-bold mb-4"><i class="fas fa-heart text-danger me-2"></i>Phòng trọ đã lưu</h3>
+    <h3 class="fw-bold mb-4">
+        <i class="fas fa-heart text-danger me-2"></i>Phòng trọ đã lưu
+    </h3>
 
     @if (!Model.Any())
     {
@@ -16,24 +18,55 @@
         <div class="row g-4">
             @foreach (var item in Model)
             {
-                <div class="col-md-4" id="fav-card-@item.Id">
-                    <div class="card h-100 shadow-sm border-0 position-relative">
-                        <button onclick="toggleFavorite(@item.RoomId, @item.Id)"
-                                class="btn btn-light position-absolute top-0 end-0 m-2 shadow-sm rounded-circle">
-                            <i class="fas fa-trash text-danger"></i>
-                        </button>
+                var mainImage = item.Room?.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl
+                ?? item.Room?.RoomImages?.FirstOrDefault()?.ImageUrl
+                ?? "/images/no-image.png";
 
-                        <img src="@item.Room.RoomImages.FirstOrDefault(i => i.IsMain)?.ImageUrl"
-                             class="card-img-top" style="height: 200px; object-fit: cover;">
+                <div class="col-md-4" id="fav-card-@item.Id">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                        <img src="@mainImage"
+                             class="card-img-top"
+                             style="height: 200px; object-fit: cover;"
+                             alt="@item.Room?.Title">
 
                         <div class="card-body">
-                            <h5 class="card-title text-truncate">@item.Room.Title</h5>
-                            <p class="text-danger fw-bold mb-1">@item.Room.Price.ToString("N0") đ/tháng</p>
-                            <p class="small text-muted"><i class="fas fa-map-marker-alt me-1"></i>@item.Room.Address</p>
-                        </div>
-                        <div class="card-footer bg-white border-0 pb-3">
-                            <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.RoomId"
-                               class="btn btn-outline-primary w-100">Xem chi tiết</a>
+                            <p class="text-primary fw-bold fs-4 mb-2">
+                                @item.Room.Price.ToString("N0") đ / tháng
+                            </p>
+
+                            <h5 class="card-title mb-2 text-truncate">
+                                @item.Room.Title
+                            </h5>
+
+                            <p class="small text-muted mb-3">
+                                <i class="fas fa-map-marker-alt me-1"></i>@item.Room.Address
+                            </p>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-area=""
+                                   asp-controller="Rooms"
+                                   asp-action="Details"
+                                   asp-route-id="@item.RoomId"
+                                   class="btn btn-primary px-4">
+                                    Xem chi tiết
+                                </a>
+
+                                <a asp-area="Customer"
+                                   asp-controller="Reviews"
+                                   asp-action="Create"
+                                   asp-route-roomId="@item.RoomId"
+                                   class="btn btn-light shadow-sm"
+                                   title="Đánh giá phòng">
+                                    <i class="fas fa-star text-warning"></i>
+                                </a>
+
+                                <button type="button"
+                                        onclick="toggleFavorite(@item.RoomId, @item.Id)"
+                                        class="btn btn-light shadow-sm"
+                                        title="Bỏ yêu thích">
+                                    <i class="fas fa-heart text-danger"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44,10 +77,9 @@
 
 <script>
     function toggleFavorite(roomId, favId) {
-        if(confirm("Bạn muốn bỏ lưu phòng này?")) {
-            // Gọi đến Action Toggle trong FavoritesController
-            $.post('/Customer/Favorites/Toggle', { roomId: roomId }, function(res) {
-                if(res.success) {
+        if (confirm("Bạn muốn bỏ lưu phòng này?")) {
+            $.post('/Customer/Favorites/Toggle', { roomId: roomId }, function (res) {
+                if (res.success) {
                     $('#fav-card-' + favId).fadeOut();
                 }
             });

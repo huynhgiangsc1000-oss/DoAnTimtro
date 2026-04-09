@@ -1,0 +1,470 @@
+﻿.home-page {
+    background: #f5f7fb;
+    color: #1f2937;
+    font-family: Arial, sans-serif;
+}
+
+    .home-page .container {
+        width: min(1200px, 92%);
+        margin: 0 auto;
+    }
+
+    /* HERO */
+    .home-page .hero {
+        position: relative;
+        padding: 80px 0 60px;
+        background: linear-gradient(135deg, #eef4ff, #f8fbff);
+        overflow: hidden;
+    }
+
+    .home-page .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.15), transparent 35%);
+        pointer-events: none;
+    }
+
+    .home-page .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .home-page .hero-text {
+        text-align: center;
+        max-width: 760px;
+        margin: 0 auto 32px;
+    }
+
+        .home-page .hero-text h1 {
+            font-size: 48px;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+
+            .home-page .hero-text h1 span {
+                color: #1677ff;
+            }
+
+        .home-page .hero-text p {
+            font-size: 18px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+    /* SEARCH */
+    .home-page .search-container {
+        max-width: 1050px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 24px;
+        padding: 18px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+
+    .home-page .search-form {
+        display: grid;
+        grid-template-columns: 2fr 1.2fr 1.2fr 180px;
+        gap: 14px;
+        align-items: end;
+    }
+
+    .home-page .search-block {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .home-page .search-block label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .home-page .search-block input,
+        .home-page .search-block select {
+            height: 52px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 0 16px;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+        }
+
+            .home-page .search-block input:focus,
+            .home-page .search-block select:focus {
+                border-color: #1677ff;
+            }
+
+    .home-page .search-btn {
+        height: 52px;
+        border: none;
+        border-radius: 14px;
+        background: #1677ff;
+        color: white;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+        .home-page .search-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+    /* SECTION */
+    .home-page .featured-section {
+        padding: 70px 0;
+    }
+
+    .home-page .district-section {
+        padding: 70px 0;
+        background: #ffffff;
+    }
+
+    .home-page .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+        .home-page .section-header h2,
+        .home-page .section-center h2,
+        .home-page .landlord-content h2 {
+            font-size: 34px;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .home-page .section-header p,
+        .home-page .section-center p {
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+    .home-page .section-center {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .home-page .outline-btn,
+    .home-page .primary-btn {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+    }
+
+    .home-page .outline-btn {
+        border: 1px solid #1677ff;
+        color: #1677ff;
+        background: white;
+    }
+
+    .home-page .primary-btn {
+        background: #1677ff;
+        color: white;
+    }
+
+    /* PROPERTY GRID */
+    .home-page .property-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .home-page .property-card {
+        background: white;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        transition: 0.25s;
+    }
+
+        .home-page .property-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .home-page .property-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+    .home-page .card-body {
+        padding: 18px;
+    }
+
+    .home-page .price {
+        color: #1677ff;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .home-page .card-body h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .home-page .card-body p {
+        color: #6b7280;
+        margin-bottom: 12px;
+    }
+
+    .home-page .features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+        .home-page .features span {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+        }
+
+    /* DISTRICT GRID */
+    .home-page .district-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+    }
+
+    .home-page .district-card {
+        display: block;
+        text-decoration: none;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+        transition: 0.25s;
+        color: #111827;
+    }
+
+        .home-page .district-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .home-page .district-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .home-page .district-card span {
+            display: block;
+            padding: 14px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+    /* LANDLORD SECTION */
+    .home-page .landlord-section {
+        padding: 60px 0 80px;
+    }
+
+    .home-page .landlord-box {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 32px;
+        align-items: center;
+        background: linear-gradient(135deg, #1677ff, #4f9cff);
+        color: white;
+        border-radius: 28px;
+        padding: 42px;
+        box-shadow: 0 18px 40px rgba(22, 119, 255, 0.18);
+    }
+
+    .home-page .landlord-content h2 {
+        font-size: 40px;
+        line-height: 1.2;
+        margin-bottom: 14px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .home-page .landlord-content p {
+        color: rgba(255,255,255,0.88);
+        font-size: 18px;
+        line-height: 1.8;
+        margin-bottom: 22px;
+        max-width: 560px;
+    }
+
+    .home-page .landlord-content ul {
+        margin: 0 0 26px;
+        padding-left: 22px;
+    }
+
+    .home-page .landlord-content li {
+        margin-bottom: 12px;
+        color: #fff;
+        font-size: 17px;
+    }
+
+    .home-page .landlord-btn {
+        display: inline-block;
+        background: #ffffff;
+        color: #1677ff;
+        padding: 14px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 800;
+        box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+        transition: 0.2s ease;
+    }
+
+        .home-page .landlord-btn:hover {
+            transform: translateY(-2px);
+            color: #1677ff;
+        }
+
+    .home-page .landlord-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .home-page .landlord-image img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 24px;
+            display: block;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+            background: rgba(255,255,255,0.15);
+        }
+
+/* FAVORITE BUTTON */
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.2s ease;
+}
+
+    .favorite-btn:hover {
+        transform: scale(1.06);
+        background: #ffffff;
+    }
+
+    .favorite-btn i {
+        font-size: 18px;
+        color: #111827;
+    }
+
+    .favorite-btn .bi-heart-fill {
+        color: #dc3545;
+    }
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .home-page .search-form,
+    .home-page .property-grid,
+    .home-page .district-grid,
+    .home-page .landlord-box {
+        grid-template-columns: 1fr;
+    }
+
+    .home-page .hero-text h1 {
+        font-size: 36px;
+    }
+
+    .home-page .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .home-page .landlord-box {
+        padding: 28px;
+    }
+
+    .home-page .landlord-content h2 {
+        font-size: 30px;
+    }
+
+    .home-page .landlord-content p {
+        font-size: 16px;
+    }
+
+    .home-page .landlord-image img {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 576px) {
+    .home-page .hero {
+        padding: 56px 0 40px;
+    }
+
+    .home-page .hero-text h1 {
+        font-size: 30px;
+    }
+
+    .home-page .search-container {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .home-page .landlord-box {
+        padding: 22px;
+        border-radius: 22px;
+    }
+
+    .home-page .landlord-content h2 {
+        font-size: 26px;
+    }
+
+    .home-page .landlord-content li {
+        font-size: 15px;
+    }
+
+    .home-page .landlord-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+.favorite-btn-inline {
+    width: 46px;
+    height: 46px;
+    border: none;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .favorite-btn-inline:hover {
+        transform: translateY(-2px);
+    }
+
+    .favorite-btn-inline i {
+        font-size: 18px;
+        color: #111827;
+    }

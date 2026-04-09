@@ -4,28 +4,24 @@
     ViewData["Title"] = "Xóa đánh giá";
 }
 
-<div class="delete-review-page">
-    <div class="delete-review-card">
-        <div class="delete-icon">🗑️</div>
-        <h2>Xóa đánh giá này?</h2>
-        <p>Bạn có chắc muốn xóa đánh giá cho phòng <strong>@Model.Room?.Title</strong> không?</p>
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="text-danger mb-3">Xóa đánh giá</h2>
+            <p>Bạn có chắc muốn xóa đánh giá này không?</p>
 
-        <div class="rating-stars mb-3">
-            @for (int i = 1; i <= 5; i++)
-            {
-                <span class="@(i <= Model.Rating ? "star-filled" : "star-empty")">★</span>
-            }
+            <p><strong>Phòng:</strong> @Model.Room?.Title</p>
+            <p><strong>Số sao:</strong> @Model.Rating</p>
+            <p><strong>Nội dung:</strong> @Model.Comment</p>
+
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit" class="btn btn-danger">Xóa</button>
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            </form>
         </div>
-
-        <div class="review-comment-box">
-            @Model.Comment
-        </div>
-
-        <form asp-action="Delete" method="post" class="mt-4">
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn-delete-confirm">Xóa</button>
-            <a asp-action="Index" class="btn-cancel">Hủy</a>
-        </form>
     </div>
 </div>
 

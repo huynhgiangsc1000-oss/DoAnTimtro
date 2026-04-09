@@ -1,189 +1,460 @@
 @model IEnumerable<DoAnCk.Models.Entities.Room>
 @{
     ViewData["Title"] = "Trang chủ - EasyRent";
+
+    var currentDistrict = Context.Request.Query["district"].ToString();
+
+    var districtsData = new[] {
+        new { Name = "Quận 1", Image = "/images/Quan1.jpg" },
+        new { Name = "Quận 3", Image = "/images/Quan3.jpg" },
+        new { Name = "Quận 4", Image = "/images/Quan4.jpg" },
+        new { Name = "Quận 5", Image = "/images/Quan5.jpg" },
+        new { Name = "Quận 6", Image = "/images/Quan6.jpg" },
+        new { Name = "Quận 7", Image = "/images/Quan7.jpg" },
+        new { Name = "Quận 8", Image = "/images/Quan8.jpg" },
+        new { Name = "Quận 10", Image = "/images/Quan10.jpg" },
+        new { Name = "Quận 11", Image = "/images/Quan11.jpg" },
+        new { Name = "Quận 12", Image = "/images/Quan12.jpg" },
+        new { Name = "Bình Tân", Image = "/images/BinhTan.jpg" },
+        new { Name = "Bình Thạnh", Image = "/images/BinhThanh.jpg" },
+        new { Name = "Gò Vấp", Image = "/images/GoVap.jpg" },
+        new { Name = "Phú Nhuận", Image = "/images/Phunhuan.jpg" },
+        new { Name = "Tân Bình", Image = "/images/TanBinh.jpg" },
+        new { Name = "Tân Phú", Image = "/images/TanPhu.jpg" },
+        new { Name = "Thủ Đức", Image = "/images/ThuDuc.jpg" },
+        new { Name = "Hóc Môn", Image = "/images/HocMon.jpg" },
+        new { Name = "Nhà Bè", Image = "/images/NhaBe.jpg" }
+    };
+
+    var featuredRooms = Model?.Take(3) ?? Enumerable.Empty<DoAnCk.Models.Entities.Room>();
+    var resultsRooms = Model?.Skip(3) ?? Enumerable.Empty<DoAnCk.Models.Entities.Room>();
+
+    if (!string.IsNullOrEmpty(currentDistrict))
+    {
+        resultsRooms = resultsRooms.Where(r => r.Address != null && r.Address.Contains(currentDistrict));
+    }
 }
 
-<div class="hero-wrapper">
-    <div class="hero-content text-center text-white">
-        <h1 class="fw-bold display-4 mb-3">Tìm phòng trọ nhanh, thuê dễ dàng</h1>
-        <p class="lead mb-4">Hệ thống xác thực thông tin giúp bạn an tâm tuyệt đối</p>
-        <div class="container">
-            <div class="search-main shadow-lg bg-white p-2 rounded-pill mx-auto" style="max-width: 900px;">
-                <form class="row g-0 align-items-center px-3">
-                    <div class="col-md-5 border-end">
-                        <input type="text" class="form-control border-0 no-shadow" placeholder="Quận, tên đường...">
+<link rel="stylesheet" href="~/css/home.css" />
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="home-page">
+
+    <form id="favorite-form" method="post" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1>Tìm kiếm phòng trọ <span>nhanh và dễ hơn</span></h1>
+                <p>
+                    EasyRent giúp bạn tìm phòng theo khu vực, loại phòng và mức giá phù hợp.
+                    Giao diện hiện đại, dễ dùng và kết nối nhanh với chủ trọ.
+                </p>
+            </div>
+
+            <div class="search-container">
+                <form method="get" asp-controller="Home" asp-action="Index" class="search-form">
+                    <div class="search-block">
+                        <label><i class="ri-map-pin-line"></i> Vị trí</label>
+                        <input type="text" name="district" value="@currentDistrict" placeholder="Ví dụ: Quận 1, Tân Bình..." />
                     </div>
-                    <div class="col-md-4 border-end">
-                        <select class="form-select border-0 no-shadow">
-                            <option>Tất cả loại phòng</option>
+
+                    <div class="search-block">
+                        <label><i class="ri-home-4-line"></i> Loại phòng</label>
+                        <select name="category">
+                            <option value="">Tất cả loại phòng</option>
+                            <option value="Phòng trọ">Phòng trọ</option>
+                            <option value="Căn hộ mini">Căn hộ mini</option>
+                            <option value="Studio">Studio</option>
+                            <option value="Ở ghép">Ở ghép</option>
                         </select>
                     </div>
-                    <div class="col-md-3 ps-2">
-                        <button type="button" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold">TÌM KIẾM</button>
+
+                    <div class="search-block">
+                        <label><i class="ri-money-dollar-circle-line"></i> Mức giá</label>
+                        <select name="price">
+                            <option value="">Tất cả mức giá</option>
+                            <option value="duoi-3">Dưới 3 triệu</option>
+                            <option value="3-5">3 - 5 triệu</option>
+                            <option value="5-7">5 - 7 triệu</option>
+                            <option value="tren-7">Trên 7 triệu</option>
+                        </select>
                     </div>
+
+                    <button type="submit" class="search-btn">
+                        <i class="ri-search-line"></i> Tìm kiếm
+                    </button>
                 </form>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="container my-5 pt-4">
-    <div class="d-flex align-items-center mb-4">
-        <div class="flex-shrink-0 bg-warning rounded-circle me-3" style="width: 12px; height: 12px;"></div>
-        <h2 class="fw-bold mb-0">Lựa chọn tốt nhất cho bạn</h2>
-    </div>
+    <!-- PHÒNG NỔI BẬT -->
+    <section class="featured-section container">
+        <div class="section-header">
+            <div>
+                <h2>Phòng trọ nổi bật</h2>
+                <p>Những lựa chọn tốt nhất dành cho bạn.</p>
+            </div>
+            <a asp-controller="Rooms" asp-action="Index" class="outline-btn">Xem tất cả</a>
+        </div>
 
-    <div class="row g-4">
-        @if (Model != null)
-        {
-            @foreach (var item in Model.Take(3))
+        <div class="property-grid">
+            @foreach (var item in featuredRooms)
             {
-                <div class="col-lg-4 col-md-6">
-                    <div class="room-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <div class="position-relative">
-                            <img src="@(item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
-                                 class="card-img-top" style="height: 220px; object-fit: cover;">
-                            <div class="price-overlay">@item.Price.ToString("N0") đ</div>
+                <div class="property-card">
+                    <div class="position-relative">
+                        <img src="@(item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
+                             alt="@item.Title" />
+
+                        <button type="button" class="favorite-btn" data-room-id="@item.Id">
+                            <i class="bi bi-heart"></i>
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="price">@item.Price.ToString("N0") đ / tháng</div>
+                        <h3>@item.Title</h3>
+                        <p><i class="ri-map-pin-2-line"></i> @item.Address</p>
+                        <div class="features">
+                            <span>Phòng nổi bật</span>
+                            <span>Đã xác minh</span>
                         </div>
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold text-dark text-truncate">@item.Title</h5>
-                            <p class="text-muted small mb-3"><i class="fas fa-map-marker-alt me-2"></i>@item.Address</p>
-                            <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary w-100">
-                                XEM CHI TIẾT
+                        <div class="mt-3">
+                            <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@item.Id" class="primary-btn">
+                                Xem chi tiết
                             </a>
                         </div>
                     </div>
                 </div>
             }
-        }
-    </div>
-</div>
-
-<div class="bg-light py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary text-uppercase">Phòng trọ cho thuê tại TP. HCM</h2>
-            <div class="title-divider mx-auto mb-4" style="width: 80px; height: 3px; background: #007bff;"></div>
-            <p class="text-muted">Nhấn vào Quận/Huyện để xem danh sách phòng tương ứng</p>
         </div>
+    </section>
 
-        <div class="row g-3 justify-content-center district-image-grid mb-5">
-            @{
-                // Tạo một danh sách các quận với hình ảnh minh họa (link ảnh lấy từ Unsplash)B
-                // Trong thực tế, bạn nên lấy dữ liệu này từ Database table 'Districts'
-                var districtsData = new[] {
-                        new { Name = "Quận 1", Image = "/images/Quan1.jpg" },
-                        new { Name = "Quận 3", Image = "/images/Quan3.jpg" },
-                        new { Name = "Quận 4", Image = "/images/Quan4.jpg" },
-                        new { Name = "Quận 5", Image = "/images/Quan5.jpg" },
-                        new { Name = "Quận 6", Image = "/images/Quan6.jpg" },
-                        new { Name = "Quận 7", Image = "/images/Quan7.jpg" },
-                        new { Name = "Quận 8", Image = "/images/Quan8.jpg" },
-                        new { Name = "Quận 10", Image = "/images/Quan10.jpg" },
-                        new { Name = "Quận 11", Image = "/images/Quan11.jpg" },
-                        new { Name = "Quận 12", Image = "/images/Quan12.jpg" },
-                        new { Name = "Bình Tân", Image = "/images/BinhTan.jpg" },
-                        new { Name = "Bình Thạnh", Image = "/images/BinhThanh.jpg" },
-                        new { Name = "Gò Vấp", Image = "/images/GoVap.jpg" },
-                        new { Name = "Phú Nhuận", Image = "/images/Phunhuan.jpg" },
-                        new { Name = "Tân Bình", Image = "/images/TanBinh.jpg" },
-                        new { Name = "Tân Phú", Image = "/images/TanPhu.jpg" },
-                        new { Name = "Thủ Đức", Image = "/images/ThuDuc.jpg" },
-                        new { Name = "Hóc Môn", Image = "/images/HocMon.jpg" }, 
-                        new { Name = "Nhà Bè", Image = "/images/NhaBe.jpg" }    
-                        };
-                var currentDistrict = Context.Request.Query["district"].ToString();
-            }
+    <!-- KHU VỰC NỔI BẬT -->
+    <section class="district-section">
+        <div class="container">
+            <div class="section-center">
+                <h2>Khu vực nổi bật tại TP.HCM</h2>
+                <p>Chọn quận/huyện để xem danh sách phòng tương ứng.</p>
+            </div>
 
-            @foreach (var d in districtsData)
-            {
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                    <a asp-action="Index" asp-route-district="@d.Name"
-                       class="district-item card border-0 shadow-sm rounded-4 overflow-hidden h-100 @(currentDistrict == d.Name ? "active-district" : "")">
-                        <img src="@d.Image" class="card-img-top" alt="@d.Name" style="height: 120px; object-fit: cover;">
-                        <div class="card-body p-2 text-center bg-white">
-                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">@d.Name</h6>
-                            @* (Tùy chọn) Hiện số lượng bài đăng: <small class="text-muted">(99+)</small> *@
-                        </div>
+            <div class="district-grid">
+                @foreach (var d in districtsData.Take(8))
+                {
+                    <a asp-controller="Rooms"
+                       asp-action="ByDistrict"
+                       asp-route-district="@d.Name"
+                       class="district-card">
+                        <img src="@d.Image" alt="@d.Name" />
+                        <span>@d.Name</span>
                     </a>
-                </div>
-            }
+                }
+            </div>
 
             @if (!string.IsNullOrEmpty(currentDistrict))
             {
-                <div class="col-12 text-center mt-3">
-                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm fw-bold">
-                        <i class="fas fa-times me-1"></i> Xóa lọc theo @currentDistrict
-                    </a>
+                <div class="text-center mt-4">
+                    <a asp-action="Index" class="outline-btn">Xóa lọc theo @currentDistrict</a>
                 </div>
             }
         </div>
+    </section>
 
-        <div class="row g-4 mt-2">
-            @if (Model != null && Model.Any())
+    <!-- DANH SÁCH PHÒNG -->
+    <section class="featured-section container">
+        <div class="section-header">
+            <div>
+                <h2>
+                    @(string.IsNullOrEmpty(currentDistrict) ? "Danh sách phòng tại TP.HCM" : $"Phòng tại {currentDistrict}")
+                </h2>
+                <p>Khám phá thêm các phòng phù hợp với nhu cầu của bạn.</p>
+            </div>
+        </div>
+
+        <div class="property-grid">
+            @if (resultsRooms.Any())
             {
-                // Logic lọc dữ liệu tại View (Khuyên dùng lọc tại Controller)
-                var resultsRooms = Model.Skip(3); // Giữ nguyên logic skip 3 của bạn
-
-                if (!string.IsNullOrEmpty(currentDistrict))
+                @foreach (var item in resultsRooms)
                 {
-                    resultsRooms = resultsRooms.Where(r => r.Address.Contains(currentDistrict));
-                }
+                    <div class="property-card">
+                        <div class="position-relative">
+                            <img src="@(item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
+                                 alt="@item.Title" />
 
-                if (resultsRooms.Any())
-                {
-                    <div class="col-12 mb-3">
-                        <h5 class="fw-bold text-dark">
-                            @(string.IsNullOrEmpty(currentDistrict) ? "Tất cả phòng TP.HCM" : $"Kết quả tìm kiếm tại {currentDistrict}")
-                        </h5>
-                    </div>
+                            <button type="button" class="favorite-btn" data-room-id="@item.Id">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
 
-                    @foreach (var item in resultsRooms)
-                    {
-                        <div class="col-lg-3 col-md-6">
-                            <div class="room-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                                <div class="position-relative">
-                                    <img src="@(item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
-                                         class="card-img-top" style="height: 180px; object-fit: cover;">
-                                    <div class="price-overlay">@item.Price.ToString("N0") đ</div>
-                                </div>
-                                <div class="card-body p-3 text-center">
-                                    <h6 class="fw-bold text-dark text-truncate mb-2">@item.Title</h6>
-                                    <p class="text-muted small mb-3">
-                                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
-                                        @* Hiển thị quận lấy từ chuỗi địa chỉ *@
-                                        @(item.Address.Contains(",") ? item.Address.Split(',').Last().Trim() : item.Address)
-                                    </p>
-                                    <a asp-action="Details" asp-controller="Home" asp-route-id="@item.Id" class="btn btn-sm btn-view-detail w-100 rounded-pill">CHI TIẾT</a>
-                                </div>
+                        <div class="card-body">
+                            <div class="price">@item.Price.ToString("N0") đ / tháng</div>
+                            <h3>@item.Title</h3>
+                            <p>
+                                <i class="ri-map-pin-2-line"></i>
+                                @(item.Address.Contains(",") ? item.Address.Split(',').Last().Trim() : item.Address)
+                            </p>
+                            <div class="features">
+                                <span>Chi tiết rõ ràng</span>
+                                <span>Dễ liên hệ</span>
+                            </div>
+                            <div class="mt-3">
+                                <a asp-controller="Rooms" asp-action="Details" asp-route-id="@item.Id" class="primary-btn">
+                                    Xem chi tiết
+                                </a>
                             </div>
                         </div>
-                    }
-                }
-                else
-                {
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-search-location fa-4x text-muted opacity-50 mb-4"></i>
-                        <p class="text-muted fst-italic">Hiện chưa có bài đăng nào được duyệt tại khu vực <strong>@currentDistrict</strong>.</p>
-                        <a asp-action="Index" class="btn btn-link">Xem tất cả phòng</a>
                     </div>
                 }
             }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <i class="ri-search-line" style="font-size:48px; color:#9ca3af;"></i>
+                    <p class="text-muted mt-3">
+                        Hiện chưa có bài đăng nào tại khu vực <strong>@currentDistrict</strong>.
+                    </p>
+                    <a asp-action="Index" class="outline-btn">Xem tất cả phòng</a>
+                </div>
+            }
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="container py-5 text-center">
-    <h2 class="fw-bold mb-5">Cẩm nang thuê phòng</h2>
-    <div class="row g-4 justify-content-center">
-        <div class="col-md-4">
-            <div class="blog-item shadow-sm rounded-4 overflow-hidden bg-white text-start">
-                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500" class="w-100" style="height:200px; object-fit:cover;">
-                <div class="p-3">
-                    <h6 class="fw-bold text-dark">Lưu ý khi ký hợp đồng đặt cọc</h6>
-                    <p class="text-muted small mb-0">Hỗ trợ bởi đội ngũ Admin EasyRent</p>
+    <!-- CHO CHỦ TRỌ -->
+    <section class="landlord-section container">
+        <div class="landlord-box">
+            <div class="landlord-content">
+                <h2>Bạn có phòng cho thuê?</h2>
+                <p>
+                    Đăng tin nhanh trên EasyRent, tiếp cận khách thuê phù hợp
+                    và quản lý bài đăng dễ dàng hơn.
+                </p>
+
+                <ul>
+                    <li>Đăng tin chỉ trong vài phút</li>
+                    <li>Quản lý phòng rõ ràng</li>
+                    <li>Tăng cơ hội tiếp cận khách thuê</li>
+                </ul>
+
+                <a href="/Host" class="landlord-btn">Đăng tin miễn phí</a>
+            </div>
+
+            <div class="landlord-image">
+                <img src="/images/Quan1.jpg" alt="Đăng tin cho thuê trên EasyRent" />
+            </div>
+        </div>
+    </section>
+
+    <!-- CẨM NANG -->
+    <section class="featured-section container">
+        <div class="section-center">
+            <h2>Cẩm nang thuê phòng</h2>
+            <p>Một vài nội dung hữu ích dành cho người tìm trọ.</p>
+        </div>
+
+        <div class="property-grid">
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500" alt="Cẩm nang thuê phòng" />
+                <div class="card-body">
+                    <h3>Lưu ý khi ký hợp đồng đặt cọc</h3>
+                    <p>Hỗ trợ bởi đội ngũ EasyRent.</p>
+                </div>
+            </div>
+
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1460317442991-0ec209397118?w=500" alt="Cẩm nang xem phòng" />
+                <div class="card-body">
+                    <h3>Kinh nghiệm xem phòng trước khi thuê</h3>
+                    <p>Những điểm cần kiểm tra để tránh rủi ro.</p>
+                </div>
+            </div>
+
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500" alt="Cẩm nang chi phí" />
+                <div class="card-body">
+                    <h3>Cách tính chi phí thuê phòng hợp lý</h3>
+                    <p>Giúp bạn chọn phòng phù hợp với ngân sách.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function createToast(title, message, type = "success") {
+                const toastContainer =
+                    document.getElementById("toast-container") || createToastContainer();
+
+                const toast = document.createElement("div");
+                toast.className = `toast toast-${type}`;
+
+                let iconClass = "ri-check-line";
+                if (type === "error") iconClass = "ri-error-warning-line";
+                if (type === "info") iconClass = "ri-information-line";
+
+                toast.innerHTML = `
+                    <div class="toast-icon"><i class="${iconClass}"></i></div>
+                    <div class="toast-content">
+                        <h4>${title}</h4>
+                        <p>${message}</p>
+                    </div>
+                    <button class="toast-close"><i class="ri-close-line"></i></button>
+                `;
+
+                toastContainer.appendChild(toast);
+
+                toast.querySelector(".toast-close").addEventListener("click", () => {
+                    toast.style.animation = "fadeOut 0.3s forwards";
+                    setTimeout(() => toast.remove(), 300);
+                });
+
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.style.animation = "fadeOut 0.3s forwards";
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, 3000);
+            }
+
+            function createToastContainer() {
+                const container = document.createElement("div");
+                container.id = "toast-container";
+                container.style.cssText =
+                    "position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;";
+                document.body.appendChild(container);
+
+                const style = document.createElement("style");
+                style.innerHTML = `
+                    .toast {
+                        background: white;
+                        border-radius: 12px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+                        padding: 15px 20px;
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                        min-width: 300px;
+                        border-left: 4px solid #1677ff;
+                    }
+                    .toast-error { border-left-color: #ef4444; }
+                    .toast-info { border-left-color: #3b82f6; }
+                    .toast-icon i { font-size: 1.4rem; color: #1677ff; }
+                    .toast-error .toast-icon i { color: #ef4444; }
+                    .toast-info .toast-icon i { color: #3b82f6; }
+                    .toast-content h4 { margin: 0; font-size: 1rem; color: #111827; }
+                    .toast-content p { margin: 0; font-size: 0.9rem; color: #6b7280; }
+                    .toast-close {
+                        background: none;
+                        border: none;
+                        font-size: 1.1rem;
+                        color: #6b7280;
+                        cursor: pointer;
+                        margin-left: auto;
+                    }
+                    @@keyframes fadeOut {
+                        from { opacity: 1; transform: translateX(0); }
+                        to { opacity: 0; transform: translateX(20px); }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                return container;
+            }
+
+            const tokenInput = document.querySelector('#favorite-form input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : "";
+            const buttons = document.querySelectorAll(".favorite-btn");
+
+            buttons.forEach(btn => {
+                const roomId = btn.getAttribute("data-room-id");
+                const icon = btn.querySelector("i");
+
+                fetch(`/Customer/Favorites/IsFavorite?roomId=${roomId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.isFavorite) {
+                            icon.classList.remove("bi-heart");
+                            icon.classList.add("bi-heart-fill", "text-danger");
+                        }
+                    })
+                    .catch(err => console.error("IsFavorite error:", err));
+
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    fetch("/Customer/Favorites/Toggle", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "RequestVerificationToken": token
+                        },
+                        body: `roomId=${roomId}`
+                    })
+                    .then(res => {
+                        if (res.status === 401) {
+                            createToast("Chưa đăng nhập", "Bạn cần đăng nhập để dùng chức năng này.", "error");
+                            setTimeout(() => {
+                                window.location.href = "/Identity/Account/Login";
+                            }, 1200);
+                            return null;
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data) return;
+
+                        if (data.success) {
+                            if (data.isFavorite) {
+                                icon.classList.remove("bi-heart");
+                                icon.classList.add("bi-heart-fill", "text-danger");
+                                createToast("Đã lưu", "Phòng đã được thêm vào mục yêu thích.");
+                            } else {
+                                icon.classList.remove("bi-heart-fill", "text-danger");
+                                icon.classList.add("bi-heart");
+                                createToast("Đã bỏ lưu", "Phòng đã được xóa khỏi mục yêu thích.", "info");
+                            }
+                        } else {
+                            createToast("Thông báo", data.message || "Không thể xử lý yêu cầu.", "error");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Toggle favorite error:", err);
+                        createToast("Lỗi", "Có lỗi xảy ra.", "error");
+                    });
+                });
+            });
+
+            const searchBtn = document.querySelector(".search-btn");
+            if (searchBtn) {
+                searchBtn.addEventListener("click", function () {
+                    const icon = searchBtn.querySelector("i");
+                    if (icon) {
+                        icon.style.transition = "transform 0.5s";
+                        icon.style.transform = "rotate(360deg)";
+                        setTimeout(() => icon.style.transform = "rotate(0)", 500);
+                    }
+                });
+            }
+
+            const navbar = document.getElementById("navbar");
+            if (navbar) {
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add("scrolled");
+                    } else {
+                        navbar.classList.remove("scrolled");
+                    }
+                });
+            }
+        });
+    </script>
+}

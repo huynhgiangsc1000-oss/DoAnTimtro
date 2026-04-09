@@ -67,6 +67,34 @@
                                     <option value="">-- Chọn danh mục --</option>
                                 </select>
                             </div>
+
+                            <div class="mb-3">
+                                <label asp-for="District" class="form-label fw-bold">Quận/Huyện</label>
+                                <select asp-for="District" class="form-select">
+                                    <option value="">-- Chọn quận/huyện --</option>
+                                    <option value="Quận 1">Quận 1</option>
+                                    <option value="Quận 3">Quận 3</option>
+                                    <option value="Quận 4">Quận 4</option>
+                                    <option value="Quận 5">Quận 5</option>
+                                    <option value="Quận 6">Quận 6</option>
+                                    <option value="Quận 7">Quận 7</option>
+                                    <option value="Quận 8">Quận 8</option>
+                                    <option value="Quận 10">Quận 10</option>
+                                    <option value="Quận 11">Quận 11</option>
+                                    <option value="Quận 12">Quận 12</option>
+                                    <option value="Bình Tân">Bình Tân</option>
+                                    <option value="Bình Thạnh">Bình Thạnh</option>
+                                    <option value="Gò Vấp">Gò Vấp</option>
+                                    <option value="Phú Nhuận">Phú Nhuận</option>
+                                    <option value="Tân Bình">Tân Bình</option>
+                                    <option value="Tân Phú">Tân Phú</option>
+                                    <option value="Thủ Đức">Thủ Đức</option>
+                                    <option value="Hóc Môn">Hóc Môn</option>
+                                    <option value="Nhà Bè">Nhà Bè</option>
+                                </select>
+                                <span asp-validation-for="District" class="text-danger"></span>
+                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-danger">Hình ảnh (Tối đa 5-10 ảnh)</label>
                                 <input type="file" name="images" multiple class="form-control" accept="image/*" id="imageInput" />

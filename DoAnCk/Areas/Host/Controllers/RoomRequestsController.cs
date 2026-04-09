@@ -18,7 +18,6 @@ namespace DoAnCk.Areas.Host.Controllers
             _context = context;
         }
 
-        // SỬA: Trả về string thay vì int
         private string GetCurrentUserId()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
@@ -39,10 +38,49 @@ namespace DoAnCk.Areas.Host.Controllers
             return View(requests);
         }
 
-        // Các hàm Details, Edit, Delete... trong file này cũng cần đảm bảo 
-        // việc so sánh existingRequest.Room.UserId == GetCurrentUserId() 
-        // giờ là so sánh string với string.
+        public async Task<IActionResult> Details(int id)
+        {
+            string userId = GetCurrentUserId();
 
-        // ... (Giữ nguyên logic xử lý, chỉ thay đổi kiểu dữ liệu so sánh)
+            var request = await _context.RoomRequests
+                .Include(r => r.Room)
+                .Include(r => r.Sender)
+                .FirstOrDefaultAsync(r => r.Id == id && r.Room != null && r.Room.UserId == userId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            return View(request);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int requestId, RequestStatus status, string? note)
+        {
+            string userId = GetCurrentUserId();
+
+            var request = await _context.RoomRequests
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.Room != null && r.Room.UserId == userId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            request.Status = status;
+
+            if (!string.IsNullOrWhiteSpace(note))
+            {
+                request.Note = note;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật yêu cầu thành công.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

@@ -11,7 +11,12 @@
             <p>Quản lý các đánh giá bạn đã gửi.</p>
         </div>
 
-        <a asp-action="Create" class="btn-create-review">Viết đánh giá mới</a>
+        <a asp-area="Customer"
+           asp-controller="Reviews"
+           asp-action="Create"
+           class="btn-create-review">
+            Viết đánh giá mới
+        </a>
     </div>
 
     @if (TempData["ReviewError"] != null)
@@ -30,6 +35,13 @@
             <div class="empty-icon">⭐</div>
             <h3>Bạn chưa có đánh giá nào</h3>
             <p>Hãy chia sẻ trải nghiệm thực tế của bạn về phòng trọ.</p>
+
+            <a asp-area="Customer"
+               asp-controller="Reviews"
+               asp-action="Create"
+               class="btn-create-review mt-3">
+                Viết đánh giá mới
+            </a>
         </div>
     }
     else
@@ -57,9 +69,29 @@
                     </div>
 
                     <div class="review-actions">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-soft">Chi tiết</a>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit">Sửa</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete">Xóa</a>
+                        <a asp-area="Customer"
+                           asp-controller="Reviews"
+                           asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn-soft">
+                            Chi tiết
+                        </a>
+
+                        <a asp-area="Customer"
+                           asp-controller="Reviews"
+                           asp-action="Edit"
+                           asp-route-id="@item.Id"
+                           class="btn-edit">
+                            Sửa
+                        </a>
+
+                        <a asp-area="Customer"
+                           asp-controller="Reviews"
+                           asp-action="Delete"
+                           asp-route-id="@item.Id"
+                           class="btn-delete">
+                            Xóa
+                        </a>
                     </div>
                 </div>
             }

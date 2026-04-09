@@ -1,4 +1,5 @@
 ﻿@model DoAnCk.Models.Entities.Room
+
 <div class="container py-4">
     <div class="row">
         <div class="col-lg-8">
@@ -11,8 +12,14 @@
             <p class="text-muted"><i class="fas fa-map-marker-alt text-danger me-2"></i>@Model.Address</p>
 
             <div class="d-flex gap-4 border-top border-bottom py-3 mb-4">
-                <div><span class="text-muted d-block small">Giá thuê</span><b class="text-danger fs-4">@Model.Price.ToString("N0") đ/tháng</b></div>
-                <div class="border-start ps-4"><span class="text-muted d-block small">Diện tích</span><b class="fs-4">25 m²</b></div>
+                <div>
+                    <span class="text-muted d-block small">Giá thuê</span>
+                    <b class="text-danger fs-4">@Model.Price.ToString("N0") đ/tháng</b>
+                </div>
+                <div class="border-start ps-4">
+                    <span class="text-muted d-block small">Diện tích</span>
+                    <b class="fs-4">@Model.Area m²</b>
+                </div>
             </div>
 
             <h5 class="fw-bold">Thông tin mô tả</h5>
@@ -22,13 +29,17 @@
             <div class="row mb-4">
                 @foreach (var am in Model.RoomAmenities)
                 {
-                    <div class="col-md-4 mb-2"><i class="fas fa-check-circle text-success me-2"></i>@am.Amenity.Name</div>
+                    <div class="col-md-4 mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>@am.Amenity.Name
+                    </div>
                 }
             </div>
 
             <h5 class="fw-bold">Bản đồ</h5>
             <div class="rounded-4 overflow-hidden border" style="height: 350px;">
-                <iframe width="100%" height="100%" frameborder="0" src="https://maps.google.com/maps?q=@Uri.EscapeDataString(Model.Address)&output=embed"></iframe>
+                <iframe width="100%" height="100%" frameborder="0"
+                        src="https://maps.google.com/maps?q=@Uri.EscapeDataString(Model.Address)&output=embed">
+                </iframe>
             </div>
         </div>
 
@@ -36,8 +47,60 @@
             <div class="card border-0 shadow-sm rounded-4 p-4 text-center sticky-top" style="top: 20px;">
                 <img src="/images/default-avatar.png" class="rounded-circle mb-3 mx-auto" width="80">
                 <h6 class="fw-bold">Chủ phòng: @Model.User?.FullName</h6>
-                <a href="tel:0123456789" class="btn btn-success w-100 mb-2 py-2 fw-bold"><i class="fas fa-phone-alt me-2"></i>0123 456 789</a>
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary w-100 py-2">Sửa tin này</a>
+
+                <a href="tel:@(Model.User?.PhoneNumber ?? "0123456789")" class="btn btn-success w-100 mb-2 py-2 fw-bold">
+                    <i class="fas fa-phone-alt me-2"></i>@(Model.User?.PhoneNumber ?? "0123 456 789")
+                </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="Admin"
+                       asp-controller="Rooms"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary w-100 py-2">
+                        Chỉnh sửa tin
+                    </a>
+                }
+                else if (User.IsInRole("Host"))
+                {
+                    <a asp-area="Host"
+                       asp-controller="Rooms"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary w-100 py-2">
+                        Sửa tin này
+                    </a>
+                }
+
+                @if (User.IsInRole("Customer") || User.IsInRole("Member"))
+                {
+                    <div class="card border-0 bg-light rounded-4 mt-3 text-start">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3">Gửi yêu cầu thuê phòng</h5>
+                            <p class="text-muted small mb-3">
+                                Gửi lời nhắn để chủ trọ xem và phản hồi lại cho bạn.
+                            </p>
+
+                            <form asp-area="Customer" asp-controller="RoomRequests" asp-action="SendRequest" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="roomId" value="@Model.Id" />
+
+                                <div class="mb-3">
+                                    <textarea name="message"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Ví dụ: Em muốn thuê từ đầu tháng sau, có thể xem phòng vào buổi tối được không ạ?"
+                                          required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                                    <i class="fas fa-paper-plane me-2"></i>Gửi yêu cầu thuê
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

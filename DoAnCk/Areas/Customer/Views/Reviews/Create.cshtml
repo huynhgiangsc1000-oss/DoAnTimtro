@@ -11,8 +11,10 @@
             <p>@ViewBag.RoomTitle</p>
         </div>
 
-        <form asp-action="Create" method="post">
-            <input type="hidden" asp-for="RoomId" />
+        <form asp-area="Customer" asp-controller="Reviews" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="RoomId" value="@ViewBag.RoomId" />
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <div class="rating-section">
@@ -20,7 +22,10 @@
                 <div class="star-rating">
                     @for (int i = 5; i >= 1; i--)
                     {
-                        <input type="radio" id="star-@i" name="Rating" value="@i" @(Model.Rating == i ? "checked" : "") />
+                        <input type="radio"
+                               id="star-@i"
+                               asp-for="Rating"
+                               value="@i" />
                         <label for="star-@i" title="@i sao">★</label>
                     }
                 </div>
@@ -29,20 +34,28 @@
 
             <div class="mb-3">
                 <label asp-for="Comment" class="form-label">Cảm nhận của bạn</label>
-                <textarea asp-for="Comment" class="form-control review-textarea" rows="6"
+                <textarea asp-for="Comment"
+                          class="form-control review-textarea"
+                          rows="6"
                           placeholder="Hãy chia sẻ trải nghiệm thực tế của bạn về phòng, vị trí, chủ trọ, tiện nghi..."></textarea>
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
 
             <div class="action-group">
                 <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
-                <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@Model.RoomId" class="btn-cancel-review">
+
+                <a asp-area=""
+                   asp-controller="Rooms"
+                   asp-action="Details"
+                   asp-route-id="@ViewBag.RoomId"
+                   class="btn-cancel-review">
                     Quay lại
                 </a>
             </div>
         </form>
     </div>
 </div>
+
 
 <style>
     .review-form-page {

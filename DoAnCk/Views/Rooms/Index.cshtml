@@ -1,0 +1,61 @@
+﻿@model IEnumerable<DoAnCk.Models.Entities.Room>
+
+@{
+    ViewData["Title"] = "Tất cả phòng trọ";
+}
+
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+
+<div class="home-page">
+    <div class="container py-5">
+        <div class="section-header mb-4">
+            <div>
+                <h2>Tất cả phòng trọ</h2>
+                <p>Khám phá toàn bộ danh sách phòng trọ đã được đăng trên EasyRent.</p>
+            </div>
+            <a asp-controller="Home" asp-action="Index" class="outline-btn">Quay về trang chủ</a>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="property-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="property-card">
+                        <img src="@(item.RoomImages?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/no-image.png")"
+                             alt="@item.Title" />
+
+                        <div class="card-body">
+                            <div class="price">@item.Price.ToString("N0") đ / tháng</div>
+                            <h3>@item.Title</h3>
+                            <p><i class="ri-map-pin-2-line"></i> @item.Address</p>
+
+                            <div class="features">
+                                <span>@(item.Category?.Name ?? "Phòng trọ")</span>
+                                @if (!string.IsNullOrWhiteSpace(item.District))
+                                {
+                                    <span>@item.District</span>
+                                }
+                            </div>
+
+                            <div class="mt-3">
+                                <a asp-controller="Rooms" asp-action="Details" asp-route-id="@item.Id" class="primary-btn">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="ri-search-line" style="font-size:48px; color:#9ca3af;"></i>
+                <p class="text-muted mt-3">Hiện chưa có phòng trọ nào được đăng.</p>
+            </div>
+        }
+    </div>
+</div>

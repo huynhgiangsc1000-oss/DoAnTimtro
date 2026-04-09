@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DoAnCk.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = "Customer")] // Chỉ Customer mới có quyền truy cập
+    [Authorize(Roles = "Customer,Member")]
+  // Chỉ Customer mới có quyền truy cập
     public class RoomRequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -95,7 +96,7 @@ namespace DoAnCk.Areas.Customer.Controllers
                 TempData["Warning"] = "Đã hủy yêu cầu thuê phòng.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "RoomRequests", new { area = "Customer" });
         }
     }
 }
