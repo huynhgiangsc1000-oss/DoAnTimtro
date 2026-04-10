@@ -64,14 +64,22 @@
                         <input type="text" name="district" value="@currentDistrict" placeholder="Ví dụ: Quận 1, Tân Bình..." />
                     </div>
 
+                    @* Tìm đến đoạn hiển thị Loại phòng trong search-container *@
+
                     <div class="search-block">
                         <label><i class="ri-home-4-line"></i> Loại phòng</label>
-                        <select name="category">
+                        <select name="categoryId">
                             <option value="">Tất cả loại phòng</option>
-                            <option value="Phòng trọ">Phòng trọ</option>
-                            <option value="Căn hộ mini">Căn hộ mini</option>
-                            <option value="Studio">Studio</option>
-                            <option value="Ở ghép">Ở ghép</option>
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var cat in (List<DoAnCk.Models.Entities.Category>)ViewBag.Categories)
+                                {
+                                    @* Giữ trạng thái đã chọn sau khi Load lại trang *@
+                                    <option value="@cat.Id" selected="@(Context.Request.Query["categoryId"] == cat.Id.ToString())">
+                                        @cat.Name
+                                    </option>
+                                }
+                            }
                         </select>
                     </div>
 
@@ -79,10 +87,10 @@
                         <label><i class="ri-money-dollar-circle-line"></i> Mức giá</label>
                         <select name="price">
                             <option value="">Tất cả mức giá</option>
-                            <option value="duoi-3">Dưới 3 triệu</option>
-                            <option value="3-5">3 - 5 triệu</option>
-                            <option value="5-7">5 - 7 triệu</option>
-                            <option value="tren-7">Trên 7 triệu</option>
+                            <option value="duoi-3" selected='@(Context.Request.Query["price"] == "duoi-3")'>Dưới 3 triệu</option>
+                            <option value="3-5" selected='@(Context.Request.Query["price"] == "3-5")'>3 - 5 triệu</option>
+                            <option value="5-7" selected='@(Context.Request.Query["price"] == "5-7")'>5 - 7 triệu</option>
+                            <option value="tren-7" selected='@(Context.Request.Query["price"] == "tren-7")'>Trên 7 triệu</option>
                         </select>
                     </div>
 

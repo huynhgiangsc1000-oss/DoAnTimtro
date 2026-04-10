@@ -19,26 +19,52 @@ namespace DoAnCk.Controllers
         }
 
         // Hiển thị danh sách phòng trọ mới nhất tại trang chủ
-        public async Task<IActionResult> Index(string district)
+        public async Task<IActionResult> Index(string district, int? categoryId, string price)
         {
-            // Lấy tất cả phòng đã duyệt
+            // Lấy danh mục cho dropdown (như bước trước)
+            ViewBag.Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync();
+
             var query = _context.Rooms
                 .Include(r => r.Category)
                 .Include(r => r.RoomImages)
                 .Where(r => r.IsApproved == true)
                 .AsQueryable();
 
-            // Nếu người dùng chọn Quận, thực hiện lọc theo địa chỉ
+            // 1. Lọc theo Quận
             if (!string.IsNullOrEmpty(district))
             {
                 query = query.Where(r => r.Address.Contains(district));
             }
 
-            var rooms = await query.OrderByDescending(r => r.CreatedDate).ToListAsync();
+            // 2. Lọc theo Loại phòng
+            if (categoryId.HasValue)
+            {
+                query = query.Where(r => r.CategoryId == categoryId.Value);
+            }
 
+            // 3. Lọc theo Mức giá (Logic mới)
+            if (!string.IsNullOrEmpty(price))
+            {
+                switch (price)
+                {
+                    case "duoi-3":
+                        query = query.Where(r => r.Price < 3000000);
+                        break;
+                    case "3-5":
+                        query = query.Where(r => r.Price >= 3000000 && r.Price <= 5000000);
+                        break;
+                    case "5-7":
+                        query = query.Where(r => r.Price >= 5000000 && r.Price <= 7000000);
+                        break;
+                    case "tren-7":
+                        query = query.Where(r => r.Price > 7000000);
+                        break;
+                }
+            }
+
+            var rooms = await query.OrderByDescending(r => r.CreatedDate).ToListAsync();
             return View(rooms);
         }
-        // Xem chi tiết một phòng trọ
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
